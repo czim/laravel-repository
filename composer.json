@@ -1,5 +1,5 @@
 {
-    "name": "czim/repository",
+    "name": "czim/laravel-repository",
     "description": "Repository for Laravel (inspired by and indebted to Bosnadev/Repositories)",
     "keywords": [
         "laravel",
@@ -9,7 +9,7 @@
         "database",
         "criteria"
     ],
-    "homepage": "https://github.com/czim/repository",
+    "homepage": "https://github.com/czim/laravel-repository",
     "license": "MIT",
     "authors": [
         {
