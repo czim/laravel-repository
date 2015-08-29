@@ -4,7 +4,7 @@ namespace Czim\Repository\Criteria\Common;
 use Czim\Repository\Criteria\AbstractCriteria;
 
 /**
- * Applies a BUNCH of scopes
+ * Applies a bunch of scopes
  */
 class Scopes extends AbstractCriteria
 {
@@ -21,22 +21,38 @@ class Scopes extends AbstractCriteria
 
     /**
      * Scopes may be passed as a set of scopesets   [ [ scope, parameters ], ... ]
+     *   may also be formatted as key-value pairs   [ scope => parameters, ... ]
      * or as a list of scope names (no parameters)  [ scope, scope, ... ]
      * @param array $scopes
      * @throws \Exception
      */
     public function __construct(array $scopes)
     {
-        foreach ($scopes as &$scopeSet) {
+        foreach ($scopes as $scopeName => &$scopeSet) {
 
-            // allow strings to be passed, assuming no parameters
-            if ( ! is_array($scopeSet)) {
-                $scopeSet = [ $scopeSet, [] ];
+            // normalize each scopeset to: [ name, [ parameters ] ]
+
+            // if a key is given, $scopeSet = parameters (and must be made an array)
+            if ( ! is_numeric($scopeName)) {
+
+                if ( ! is_array($scopeSet)) {
+                    $scopeSet = [ $scopeSet ];
+                }
+
+                $scopeSet = [ $scopeName, $scopeSet ];
+
+            } else {
+                // $scopeName is not set, so the $scopeSet must contain at least the scope name
+                // allow strings to be passed, assuming no parameters
+
+                if ( ! is_array($scopeSet)) {
+                    $scopeSet = [ $scopeSet, [] ];
+                }
             }
 
             // problems if the first param is not a string
             if ( ! is_string(array_get($scopeSet, '0'))) {
-                throw new \Exception('First parameter of scopeset must be a string (the scope name)!');
+                throw new \Exception("First parameter of scopeset must be a string (the scope name)!");
             }
 
             // make sure second parameter is an array
@@ -63,7 +79,7 @@ class Scopes extends AbstractCriteria
     {
         foreach ($this->scopes as $scopeSet) {
 
-            call_user_func_array([ $model, $scopeSet[0] ], $scopeSet[1]);
+            $model = call_user_func_array([ $model, $scopeSet[0] ], $scopeSet[1]);
         }
 
         return $model;
