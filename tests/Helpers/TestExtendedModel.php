@@ -41,4 +41,8 @@ class TestExtendedModel extends Model
         return $query->whereNotNull('second_field');
     }
 
+    public function scopeMoreTesting($query, $field, $value)
+    {
+        return $query->where($field, $value);
+    }
 }

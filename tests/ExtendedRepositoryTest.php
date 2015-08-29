@@ -117,16 +117,16 @@ class ExtendedRepositoryTest extends TestCase
     {
         // add a scope that will limit the result to 1 record
         // the Brand model has a test-scope especially for this
-        $this->repository->addScope('testing', [self::UNIQUE_FIELD, '1337']);
+        $this->repository->addScope('moreTesting', [self::UNIQUE_FIELD, '1337']);
         $this->assertEquals(1, $this->repository->count(), "Wrong result count after setting scope");
         $this->assertCount(1, $this->repository->all());
 
         // remove scope by name and check count
-        $this->repository->removeScope('testing');
+        $this->repository->removeScope('moreTesting');
         $this->assertEquals(2, $this->repository->count(), "Wrong result count after removing scope by name");
 
         // set single result scope again, see if it still works
-        $this->repository->addScope('testing', [self::UNIQUE_FIELD, '1337']);
+        $this->repository->addScope('moreTesting', [self::UNIQUE_FIELD, '1337']);
         $this->assertEquals(1, $this->repository->count());
 
         // clear all scopes and check total again
