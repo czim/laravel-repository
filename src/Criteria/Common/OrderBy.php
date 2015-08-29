@@ -1,5 +1,5 @@
 <?php
-namespace PXL\Repository\Criteria\Common;
+namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
 use Illuminate\Database\Query\Builder;
