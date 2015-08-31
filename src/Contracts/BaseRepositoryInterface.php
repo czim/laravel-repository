@@ -74,11 +74,14 @@ interface BaseRepositoryInterface
     public function lists($value, $key = null);
 
     /**
-     * @param int   $perPage
+     * @param int $perPage
      * @param array $columns
-     * @return mixed
+     * @param string $pageName
+     * @param null $page
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 1, $columns = ['*']);
+    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null);
 
     /**
      * @param       $id
