@@ -23,7 +23,7 @@
         "php" : ">=5.4.0",
         "illuminate/support": "5.*",
         "illuminate/database": "5.*",
-        "phpextra/enum": "1.0.*@dev"
+        "phpextra/enum": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit" : "4.*",
@@ -45,11 +45,6 @@
     },
     "scripts": {
         "test": "phpunit"
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
-        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
