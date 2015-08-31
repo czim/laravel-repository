@@ -341,15 +341,15 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     }
 
     /**
-     * Override
-     *
-     * @param int   $perPage
+     * @param int $perPage
      * @param array $columns
-     * @return mixed
+     * @param string $pageName
+     * @param null $page
+     * @return Model|Collection|null
      */
-    public function paginate($perPage = 1, $columns = ['*'])
+    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
     {
-        return $this->postProcess( parent::paginate($perPage, $columns) );
+        return $this->postProcess( parent::paginate($perPage, $columns, $pageName, $page) );
     }
 
     /**
