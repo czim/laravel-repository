@@ -201,17 +201,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param int   $perPage
+     * @param int $perPage
      * @param array $columns
-     * @return mixed
+     * @param string $pageName
+     * @param null $page
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 1, $columns = ['*'])
+    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
     {
         $this->applyCriteria();
 
         $model = clone $this->model;
 
-        return $model->paginate($perPage, $columns);
+        return $model->paginate($perPage, $columns, $pageName, $page);
     }
 
     /**
