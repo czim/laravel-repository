@@ -206,7 +206,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
     {
-        return $this->query()->paginate($perPage, $columns, $pageName, $page);
+        return $this->query()
+                    ->paginate($perPage, $columns, $pageName, $page);
     }
 
     /**
@@ -245,8 +246,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function findBy($attribute, $value, $columns = ['*'])
     {
         return $this->query()
-            ->where($attribute, '=', $value)
-            ->first($columns);
+                    ->where($attribute, $value)
+                    ->first($columns);
     }
 
     /**
@@ -258,8 +259,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function findAllBy($attribute, $value, $columns = ['*'])
     {
         return $this->query()
-            ->where($attribute, '=', $value)
-            ->get($columns);
+                    ->where($attribute, $value)
+                    ->get($columns);
     }
 
     /**
