@@ -177,11 +177,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function all($columns = ['*'])
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
-
-        return $model->get($columns);
+        return $this->query()->get($columns);
     }
 
     /**
@@ -210,11 +206,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
-
-        return $model->paginate($perPage, $columns, $pageName, $page);
+        return $this->query()->paginate($perPage, $columns, $pageName, $page);
     }
 
     /**
@@ -224,11 +216,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function find($id, $columns = ['*'])
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
-
-        return $model->find($id, $columns);
+        return $this->query()->find($id, $columns);
     }
 
     /**
@@ -256,12 +244,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findBy($attribute, $value, $columns = ['*'])
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
-
-        return $model->where($attribute, '=', $value)
-                     ->first($columns);
+        return $this->query()
+            ->where($attribute, '=', $value)
+            ->first($columns);
     }
 
     /**
@@ -272,12 +257,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findAllBy($attribute, $value, $columns = ['*'])
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
-
-        return $model->where($attribute, '=', $value)
-                     ->get($columns);
+        return $this->query()
+            ->where($attribute, '=', $value)
+            ->get($columns);
     }
 
     /**
@@ -291,9 +273,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findWhere($where, $columns = ['*'], $or = false)
     {
-        $this->applyCriteria();
-
-        $model = clone $this->model;
+        $model = $this->query();
 
         foreach ($where as $field => $value) {
 
