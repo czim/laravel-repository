@@ -23,6 +23,12 @@ Via Composer
 $ composer require czim/laravel-repository
 ```
 
+If you run into problems with `phpextra/enum`, please run its installation separately beforehand:
+
+``` bash
+$ composer require phpextra/enum 'dev-master'
+```
+
 ## Basic Usage
 
 Simply extend the (abstract) repository class of your choice, either `Czim\Repository\BaseRepository`, `Czim\Repository\ExtendedRepository` or `Czim\Repository\ExtendedPostProcessingRepository`.
