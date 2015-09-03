@@ -122,9 +122,6 @@ I've added these mainly because they may help in using the repository pattern as
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security
-
-If you discover any security related issues, please email coen@pixelindustries.com instead of using the issue tracker.
 
 ## Credits
 
