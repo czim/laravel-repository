@@ -76,17 +76,21 @@ It is also possible to set default Criteria for the repository by overriding the
 
 Criteria may be defined or pushed onto the repository by **key**, like so:
 
+``` php
     $repository->pushCriteria(new SomeCriteria(), 'KeyForCriteria');
-
+```
 
 This allows you to later remove the Criteria by referring to its key:
 
+``` php
     // you can remove Criteria by key
     $repository->removeCriteria('KeyForCriteria'); 
-    
+```
+
 To change the Criteria that are to be used only for one call, there are helper methods that will preserve your currently active Criteria.
 If you use any of the following, the active Criteria are applied (insofar they are not removed or overridden), and additional Criteria are applied only for the next retrieval method.
 
+``` php
     // you can push one-time Criteria
     $repository->pushCriteriaOnce(new SomeOtherCriteria());
     
@@ -95,6 +99,7 @@ If you use any of the following, the active Criteria are applied (insofar they a
 
     // you can remove Criteria *only* for the next retrieval, by key
     $repository->removeCriteriaOnce('KeyForCriteria');
+```
 
 Note that this means that *only* Criteria that have keys can be removed or overridden this way.
 A `CriteriaKey` Enum is provided to more easily refer to the standard keys used in the `ExtendedRepository`, such as 'active', 'cache' and 'scope'.
