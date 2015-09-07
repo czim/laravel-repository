@@ -57,6 +57,8 @@ interface ExtendedRepositoryInterface
 
     /**
      * Prepares repository to exclude inactive entries
+     *
+     * @return $this
      */
     public function excludeInactive();
 
@@ -70,6 +72,8 @@ interface ExtendedRepositoryInterface
 
     /**
      * Disables using the cache for retrieval
+     *
+     * @return $this
      */
     public function disableCache();
 

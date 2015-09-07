@@ -268,10 +268,12 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
 
     /**
      * Prepares repository to exclude inactive entries
+     *
+     * @return $this
      */
     public function excludeInactive()
     {
-        $this->includeInactive(false);
+        return $this->includeInactive(false);
     }
 
     /**
@@ -301,10 +303,12 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
 
     /**
      * Disables using the cache for retrieval
+     *
+     * @return $this
      */
     public function disableCache()
     {
-        $this->enableCache(false);
+        return $this->enableCache(false);
     }
 
     /**
