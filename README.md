@@ -2,6 +2,7 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
+[![Build Status](https://travis-ci.org/czim/laravel-repository.svg?branch=master)](https://travis-ci.org/czim/laravel-repository)
 [![Latest Stable Version](http://img.shields.io/packagist/v/czim/laravel-repository.svg)](https://packagist.org/packages/czim/laravel-repository)
 
 Repository setup inspired by the Bosnadev/Repository package. This package is an extended, adjusted (but entirely independent) version of that, with its own interfaces.
