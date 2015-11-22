@@ -92,7 +92,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      *
      * Note that this is the only abstract method.
      *
-     * @return Model
+     * @return string
      */
     public abstract function model();
 
