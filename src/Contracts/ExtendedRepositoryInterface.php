@@ -1,8 +1,6 @@
 <?php
 namespace Czim\Repository\Contracts;
 
-use Illuminate\Support\Collection;
-
 interface ExtendedRepositoryInterface
 {
     /**

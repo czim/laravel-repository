@@ -2,8 +2,6 @@
 namespace Czim\Repository\Traits;
 
 use Czim\Repository\Criteria\Translatable\WhereHasTranslation;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 trait FindsModelsByTranslationTrait
 {
@@ -14,7 +12,7 @@ trait FindsModelsByTranslationTrait
      * @param string $value
      * @param string $locale
      * @param bool   $exact     = or LIKE match
-     * @return Model|null
+     * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function findByTranslation($attribute, $value, $locale = null, $exact = true)
     {
@@ -30,7 +28,7 @@ trait FindsModelsByTranslationTrait
      * @param string $value
      * @param string $locale
      * @param bool   $exact     = or LIKE match
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function findAllByTranslation($attribute, $value, $locale = null, $exact = true)
     {
