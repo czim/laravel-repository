@@ -8,13 +8,13 @@ use PHPExtra\Type\Enum\Enum;
  */
 class CriteriaKey extends Enum
 {
-    const _default = '';
+    const DEFAULT_VALUE = '';
 
-    const Active = 'active';    // whether to check for 'active' = 1
-    const Cache  = 'cache';     // for rememberable()
-    const Order  = 'order';     // for order by (multiple in one optionally)
-    const Scope  = 'scope';     // for scopes applied (multiple in one optionally)
-    const With   = 'with';      // for eager loading
+    const ACTIVE = 'active';    // whether to check for 'active' = 1
+    const CACHE  = 'cache';     // for rememberable()
+    const ORDER  = 'order';     // for order by (multiple in one optionally)
+    const SCOPE  = 'scope';     // for scopes applied (multiple in one optionally)
+    const WITH   = 'with';      // for eager loading
 
 
     /**
@@ -27,8 +27,8 @@ class CriteriaKey extends Enum
         $reflect   = new \ReflectionClass(get_class($this));
         $constants = $reflect->getConstants();
 
-        if (array_key_exists('_default', $constants)) {
-            unset($constants['_default']);
+        if (array_key_exists('DEFAULT_VALUE', $constants)) {
+            unset($constants['DEFAULT_VALUE']);
         }
 
         return $constants;

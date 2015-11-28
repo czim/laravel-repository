@@ -116,11 +116,11 @@ class CommonCriteriaTest extends TestCase
      */
     function scope_criteria_works()
     {
-        $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::Scope);
+        $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::SCOPE);
 
         $this->assertCount(2, $this->repository->all(), "Scope Criteria without parameters doesn't work");
 
-        $this->repository->pushCriteria(new Scope('moreTesting', [ self::SECOND_FIELD, '434' ]), CriteriaKey::Scope);
+        $this->repository->pushCriteria(new Scope('moreTesting', [ self::SECOND_FIELD, '434' ]), CriteriaKey::SCOPE);
 
         $this->assertCount(1, $this->repository->all(), "Scope Criteria with parameter doesn't work");
     }
@@ -133,14 +133,14 @@ class CommonCriteriaTest extends TestCase
         $this->repository->pushCriteria(new Scopes([
             'testing',
             'moreTesting' => [ 'active', false ],
-        ]), CriteriaKey::Scope);
+        ]), CriteriaKey::SCOPE);
 
         $this->assertCount(1, $this->repository->all(), "Multiple Scopes Criteria doesn't work (value & key => value)");
 
         $this->repository->pushCriteria(new Scopes([
             [ 'testing' ],
             [ 'moreTesting', [ 'active', false ] ],
-        ]), CriteriaKey::Scope);
+        ]), CriteriaKey::SCOPE);
 
         $this->assertCount(1, $this->repository->all(), "Multiple Scopes Criteria doesn't work (array sets, no keys)");
     }

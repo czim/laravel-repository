@@ -110,22 +110,22 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     {
         if ($this->hasActive) {
             if ( ! $this->includeInactive) {
-                $this->criteria->put(CriteriaKey::Active, new Criteria\Common\IsActive( $this->activeColumn ));
+                $this->criteria->put(CriteriaKey::ACTIVE, new Criteria\Common\IsActive( $this->activeColumn ));
             } else {
-                $this->criteria->forget(CriteriaKey::Active);
+                $this->criteria->forget(CriteriaKey::ACTIVE);
             }
         }
 
         if ($this->enableCache) {
-            $this->criteria->put(CriteriaKey::Cache, $this->getCacheCriteriaInstance());
+            $this->criteria->put(CriteriaKey::CACHE, $this->getCacheCriteriaInstance());
         } else {
-            $this->criteria->forget(CriteriaKey::Cache);
+            $this->criteria->forget(CriteriaKey::CACHE);
         }
 
         if ( ! empty($this->scopes)) {
-            $this->criteria->put(CriteriaKey::Scope, $this->getScopesCriteriaInstance());
+            $this->criteria->put(CriteriaKey::SCOPE, $this->getScopesCriteriaInstance());
         } else {
-            $this->criteria->forget(CriteriaKey::Scope);
+            $this->criteria->forget(CriteriaKey::SCOPE);
         }
 
         return $this;
