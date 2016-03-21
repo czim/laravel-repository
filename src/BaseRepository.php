@@ -78,6 +78,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function __construct(App $app, Collection $collection)
     {
+        if ($collection->isEmpty()) {
+            $collection = $this->defaultCriteria();
+        }
+
         $this->app            = $app;
         $this->criteria       = $collection;
         $this->onceCriteria   = new Collection();

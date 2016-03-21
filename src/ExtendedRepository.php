@@ -70,8 +70,6 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      */
     public function __construct(Container $app, Collection $collection)
     {
-        if ($collection->isEmpty()) $collection = $this->defaultCriteria();
-
         parent::__construct($app, $collection);
 
         $this->refreshSettingDependentCriteria();
