@@ -5,7 +5,7 @@ namespace DummyNamespace;
 use BaseRepositoryNamespace;
 use DummyModelNamespace;
 
-class DummyClass extends BaseRepository
+class DummyClass extends BaseRepositoryClass
 {
     /**
      * Returns specified model class name.

@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-	/**
+    /**
      * Commands provided by the current package.
      *
      * @var array
@@ -31,9 +31,12 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         self::$packagePath = dirname(__DIR__);
 
-        $this->publishes([
-            self::$packagePath . '/config/repository.php' => config_path('repository.php'),
-        ], 'repository');
+        $this->publishes(
+            [
+                self::$packagePath . '/config/repository.php' => config_path('repository.php'),
+            ],
+            'repository'
+        );
     }
 
     /**

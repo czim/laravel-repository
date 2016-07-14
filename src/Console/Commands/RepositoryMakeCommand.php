@@ -64,12 +64,20 @@ class RepositoryMakeCommand extends GeneratorCommand
      */
     public function __construct(FileSystem $fileSystem)
     {
+        $this->loadConfig();
+
+        parent::__construct($fileSystem);
+    }
+
+    /**
+     * Load the configuration for the command.
+     */
+    private function loadConfig()
+    {
         $this->namespace = config('repository.namespace', $this->namespace);
         $this->base = config('repository.base', $this->base);
         $this->suffix = config('repository.suffix', $this->suffix);
         $this->models = config('repository.models', $this->models);
-
-        parent::__construct($fileSystem);
     }
 
     /**
@@ -105,9 +113,13 @@ class RepositoryMakeCommand extends GeneratorCommand
 
         $modelName = $this->getModelClass($name);
 
-        return $this->replaceModelNamespace($stub, $modelName)
-            ->replaceModelClass($stub, $modelName)
-            ->replaceBaseRepositoryNamespace($stub, $this->base);
+        $this->replaceModelNamespace($stub, $modelName);
+        $this->replaceModelClass($stub, $modelName);
+
+        $this->replaceBaseRepositoryNamespace($stub, $this->base);
+        $this->replaceBaseRepositoryClass($stub, $this->base);
+
+        return $stub;
     }
 
     /**
@@ -160,7 +172,7 @@ class RepositoryMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Replace the default base repository class name for the given stub.
+     * Replace the default base repository class namespace for the given stub.
      *
      * @param  string $stub
      * @param  string $name
@@ -168,6 +180,23 @@ class RepositoryMakeCommand extends GeneratorCommand
      */
     private function replaceBaseRepositoryNamespace(&$stub, $name)
     {
-        return str_replace('BaseRepositoryNamespace', $name, $stub);
+        $stub = str_replace('BaseRepositoryNamespace', $name, $stub);
+
+        return $this;
+    }
+
+    /**
+     * Replace the default base repository class name for the given stub.
+     *
+     * @param  string $stub
+     * @param  string $name
+     * @return string
+     */
+    private function replaceBaseRepositoryClass(&$stub, $name)
+    {
+        $baseClass = str_replace($this->getNamespace($name) . '\\', '', $name);
+        $stub = str_replace('BaseRepositoryClass', $baseClass, $stub);
+
+        return $this;
     }
 }
