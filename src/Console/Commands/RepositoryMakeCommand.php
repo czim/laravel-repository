@@ -2,6 +2,7 @@
 
 namespace Czim\Repository\Console\Commands;
 
+use Czim\Repository\BaseRepository;
 use Czim\Repository\RepositoryServiceProvider;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Filesystem\Filesystem;
@@ -20,7 +21,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    private $base = \Czim\Repository\BaseRepository::class;
+    private $base = BaseRepository::class;
 
     /**
      * The suffix of each and every Repository.
@@ -49,7 +50,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Create a new Eloquent model repostory class';
+    protected $description = 'Create a new Eloquent model repository class';
 
     /**
      * The type of class being generated.
@@ -62,7 +63,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      * Create a new command instance.
      * @param Filesystem $fileSystem
      */
-    public function __construct(FileSystem $fileSystem)
+    public function __construct(Filesystem $fileSystem)
     {
         $this->loadConfig();
 

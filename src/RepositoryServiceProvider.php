@@ -2,6 +2,7 @@
 
 namespace Czim\Repository;
 
+use Czim\Repository\Console\Commands\RepositoryMakeCommand;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -12,7 +13,7 @@ class RepositoryServiceProvider extends ServiceProvider
      * @var array
      */
     private $commands = [
-        \Czim\Repository\Console\Commands\RepositoryMakeCommand::class,
+        RepositoryMakeCommand::class,
     ];
 
     /**
