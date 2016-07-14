@@ -2,7 +2,7 @@
 
 namespace Czim\Repository\Console\Commands;
 
-use Czim\Repository\Providers\RepositoryServiceProvider;
+use Czim\Repository\RepositoryServiceProvider;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Filesystem\Filesystem;
 

@@ -29,7 +29,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        self::$packagePath = dirname(dirname(__DIR__));
+        self::$packagePath = dirname(__DIR__);
 
         $this->publishes([
             self::$packagePath . '/config/repository.php' => config_path('repository.php'),
