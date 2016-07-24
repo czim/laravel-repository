@@ -1,20 +1,11 @@
 <?php
-
 namespace Czim\Repository;
 
-use Czim\Repository\Console\Commands\RepositoryMakeCommand;
+use Czim\Repository\Console\Commands\MakeRepositoryCommand;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-    /**
-     * Commands provided by the current package.
-     *
-     * @var array
-     */
-    private $commands = [
-        RepositoryMakeCommand::class,
-    ];
 
     /**
      * The base package path.
@@ -47,6 +38,9 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->commands($this->commands);
+        $this->commands([
+            MakeRepositoryCommand::class,
+        ]);
     }
+
 }
