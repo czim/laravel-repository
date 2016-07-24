@@ -62,10 +62,10 @@ class MakeRepositoryCommand extends GeneratorCommand
      */
     protected function loadConfig()
     {
-        $this->namespace = config('repository.namespace', $this->namespace);
-        $this->base      = config('repository.base', $this->base);
-        $this->suffix    = config('repository.suffix', $this->suffix);
-        $this->models    = config('repository.models', $this->models);
+        $this->namespace = config('repository.generate.namespace', $this->namespace);
+        $this->base      = config('repository.generate.base', $this->base);
+        $this->suffix    = config('repository.generate.suffix', $this->suffix);
+        $this->models    = config('repository.generate.models', $this->models);
     }
 
     /**
