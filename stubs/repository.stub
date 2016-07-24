@@ -10,8 +10,6 @@ class DummyClass extends BaseRepositoryClass
     /**
      * Returns specified model class name.
      *
-     * Note that this is the only method.
-     *
      * @return string
      */
     public function model()
