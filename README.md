@@ -25,11 +25,43 @@ Via Composer
 $ composer require czim/laravel-repository
 ```
 
+If you want to use the repository generator through the `make:repository` Artisan command, add the `RepositoryServiceProvider` to your `config/app.php`:
+
+``` php
+Czim\Repository\RepositoryServiceProvider::class,
+```
+
+Publish the repostory configuration file.
+
+``` bash
+php artisan vendor:publish --tag="repository"
+```
+
+
 ## Basic Usage
 
 Simply extend the (abstract) repository class of your choice, either `Czim\Repository\BaseRepository`, `Czim\Repository\ExtendedRepository` or `Czim\Repository\ExtendedPostProcessingRepository`.
 
 The only abstract method that must be provided is the `model` method (this is just like the way Bosnadev's repositories are used). 
+
+
+### Make Repository
+
+The `make:repository` command automatically creates a new Eloquent model repository class.
+It will also attempt to link the correct Eloquent model, but make sure to confirm that it is properly set up.
+
+``` bash
+php artisan make:repository PostsRepository
+```
+
+The above command will create a repository class named PostsRepository and link the Post model to it.
+
+If you want to set the related model explicitly, you can add the model class name:
+
+``` bash
+php artisan make:repository PostsRepository "App\Models\AlternativePost"
+```
+
 
 ### Base-, Extended- and PostProcessing
 
@@ -37,7 +69,7 @@ Depending on what you require, three different abstract repository classes may b
 
 * `BaseRepository`
 
-    Only has the retrieval and simple manipulation methods (`create()`, `update()` and `delete`), and Criteria handling.
+    Only has the retrieval and simple manipulation methods (`create()`, `update()` and `delete()`), and Criteria handling.
 
 * `ExtendedRepository`
 
