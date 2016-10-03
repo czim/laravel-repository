@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 
-
 interface BaseRepositoryInterface
 {
+
     /**
      * Returns specified model class name.
      *
@@ -276,4 +276,5 @@ interface BaseRepositoryInterface
      * @return $this
      */
     public function removeCriteriaOnce($key);
+
 }
