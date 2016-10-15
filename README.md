@@ -16,7 +16,13 @@ Among the added functionality is the ability to override or 'temporarily' set an
 I'm well aware that there is *much* to say against using Repositories like this (and the repository pattern in general), but I find they have their uses.
 I prefer using them to make for easier unit testing in large projects.
 
+## Version Compatibility
 
+ Laravel      | Package 
+:-------------|:--------
+ 5.1.x        | 1.0.x
+ 5.2.x and up | 1.2.x
+ 
 ## Install
 
 Via Composer
