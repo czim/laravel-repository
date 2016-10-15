@@ -71,6 +71,14 @@ interface BaseRepositoryInterface
      * @param  string $key
      * @return array
      */
+    public function pluck($value, $key = null);
+
+    /**
+     * @param  string $value
+     * @param  string $key
+     * @return array
+     * @deprecated
+     */
     public function lists($value, $key = null);
 
     /**
