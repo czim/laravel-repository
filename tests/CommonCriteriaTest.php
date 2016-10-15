@@ -108,7 +108,7 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new OrderBy('position', 'desc'));
 
-        $this->assertArraySubset(['3', '2', '1'], $this->repository->lists('position'), "OrderBy Criteria doesn't work");
+        $this->assertArraySubset([3, 2, 1], $this->repository->lists('position'), "OrderBy Criteria doesn't work");
     }
 
     /**
