@@ -113,7 +113,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
      */
     function it_creates_new_records_with_position_handled_by_listify()
     {
-        // the Brand model must have Listify set for this
+        // the Supplier model must have Listify set for this
         $this->repository->maintenance();
 
         // get the highest position value in the database

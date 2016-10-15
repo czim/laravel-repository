@@ -116,7 +116,7 @@ class ExtendedRepositoryTest extends TestCase
     function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries()
     {
         // add a scope that will limit the result to 1 record
-        // the Brand model has a test-scope especially for this
+        // the Supplier model has a test-scope especially for this
         $this->repository->addScope('moreTesting', [self::UNIQUE_FIELD, '1337']);
         $this->assertEquals(1, $this->repository->count(), "Wrong result count after setting scope");
         $this->assertCount(1, $this->repository->all());
