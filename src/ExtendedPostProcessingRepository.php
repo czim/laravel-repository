@@ -2,6 +2,7 @@
 namespace Czim\Repository;
 
 use Czim\Repository\Contracts\PostProcessingRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Czim\Repository\Contracts\PostProcessorInterface;
@@ -345,7 +346,7 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
      * @param array $columns
      * @param string $pageName
      * @param null $page
-     * @return Model|Collection|null
+     * @return LengthAwarePaginator|null
      */
     public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
     {
