@@ -135,6 +135,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $this->applyCriteria();
 
+        if ($this->model instanceof Model) {
+            return $this->model->query();
+        }
+
         return clone $this->model;
     }
 
