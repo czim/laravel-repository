@@ -26,9 +26,9 @@
         "myclabs/php-enum": "^1.4"
     },
     "require-dev": {
-        "phpunit/phpunit" : "4.*",
+        "phpunit/phpunit" : "5.*",
         "scrutinizer/ocular": "~1.1",
-        "orchestra/testbench": "3.2.*|3.3.*",
+        "orchestra/testbench": "3.4.*",
         "watson/rememberable": "dev-master",
         "dimsav/laravel-translatable": "~5.0",
         "lookitsatravis/listify": "^1.1"
