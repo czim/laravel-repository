@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use ReflectionClass;
 
 /**
  * Class ExtendedPostProcessingRepository
@@ -207,7 +208,20 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
             $parameters = [ $parameters ];
         }
 
-        return app($processor, $parameters);
+
+        /** @var PostProcessorInterface $instance */
+        if ( ! empty($parameters)) {
+
+            $reflectionClass = new ReflectionClass($processor);
+
+            $instance = $reflectionClass->newInstanceArgs($parameters);
+
+        } else {
+
+            $instance = app($processor);
+        }
+
+        return $instance;
     }
 
 
