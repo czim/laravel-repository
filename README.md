@@ -21,7 +21,9 @@ I prefer using them to make for easier unit testing in large projects.
  Laravel      | Package 
 :-------------|:--------
  5.1.x        | 1.0.x
- 5.2.x and up | 1.2.x
+ 5.2.x        | 1.2.x
+ 5.3.x        | 1.2.x
+ 5.4.x and up | 1.4.x
  
 ## Install
 
