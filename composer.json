@@ -28,7 +28,7 @@
     "require-dev": {
         "phpunit/phpunit" : "4.*",
         "scrutinizer/ocular": "~1.1",
-        "orchestra/testbench": "^3.2",
+        "orchestra/testbench": "3.2.*|3.3.*",
         "watson/rememberable": "dev-master",
         "dimsav/laravel-translatable": "~5.0",
         "lookitsatravis/listify": "^1.1"
