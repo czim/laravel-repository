@@ -219,13 +219,13 @@ class BaseRepositoryTest extends TestCase
         ]);
         $this->assertInstanceOf(Model::class, $model, "Create() response is not a Model");
         $this->assertNotEmpty($model->id, "Model does not have an id (likely story)");
-        $this->seeInDatabase(static::TABLE_NAME, [ 'id' => $model->id, self::UNIQUE_FIELD => '313', 'name' => 'New Model' ]);
+        $this->assertDatabaseHas(static::TABLE_NAME, [ 'id' => $model->id, self::UNIQUE_FIELD => '313', 'name' => 'New Model' ]);
         $this->assertEquals(4, $this->repository->count(), "Total count after creating new does not match");
 
         // delete
         $this->assertEquals(1, $this->repository->delete($model->id), "Delete() call did not return succesful count");
         $this->assertEquals(3, $this->repository->count(), "Total count after deleting does not match");
-        $this->notSeeInDatabase(static::TABLE_NAME, [ 'id' => $model->id ]);
+        $this->assertDatabaseMissing(static::TABLE_NAME, [ 'id' => $model->id ]);
         unset($model);
     }
 
