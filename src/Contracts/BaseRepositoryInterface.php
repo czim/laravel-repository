@@ -146,6 +146,16 @@ interface BaseRepositoryInterface
     public function update(array $data, $id, $attribute = 'id');
 
     /**
+     * Fill the model with an array of attributes.
+     *
+     * @param  array  $attributes
+     * @return Model
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill(array $attributes);
+
+    /**
      * Deletes a model by $id
      *
      * @param $id
