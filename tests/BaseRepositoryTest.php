@@ -97,6 +97,25 @@ class BaseRepositoryTest extends TestCase
 
     /**
      * @test
+     */
+    function it_fills_model_properties_without_persisting_the_model()
+    {
+        $attributes = [
+            self::UNIQUE_FIELD => 'unique_field_value',
+            self::SECOND_FIELD => 'second_field_value'
+        ];
+
+        // filling the model
+        $model = $this->repository->fill($attributes);
+
+        // asserting that only the desired attributes got filled and are the same
+        $this->assertEquals($attributes, $model->getAttributes());
+
+        // asserting the the model had its attributes filled without being persisted
+        $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
+    }
+    /**
+     * @test
      * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     function it_throws_an_exception_when_findorfail_does_not_find_anything()
