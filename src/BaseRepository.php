@@ -70,6 +70,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     protected $ignoreCriteria = false;
 
+    /**
+     * Default number of paginated items
+     *
+     * @var integer
+     */
+    protected $perPage = 1;
+
 
     /**
      * @param App        $app
@@ -105,7 +112,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Creates instance of model to start building query for
      *
      * @param bool $storeModel  if true, this becomes a fresh $this->model property
-     * @return EloquentBuilder
+     * @return Model
      * @throws RepositoryException
      */
     public function makeModel($storeModel = true)
@@ -223,8 +230,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
+    public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
     {
+        $perPage = $perPage ?: $this->getDefaultPerPage();
+
         return $this->query()
                     ->paginate($perPage, $columns, $pageName, $page);
     }
@@ -709,4 +718,24 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         return $this;
     }
+
+
+    // ------------------------------------------------------------------------------
+    //      Misc.
+    // ------------------------------------------------------------------------------
+
+    /**
+     * Returns default per page count.
+     *
+     * @return int
+     */
+    protected function getDefaultPerPage()
+    {
+        if (is_numeric($this->perPage) && $this->perPage > 0) {
+            return $this->perPage;
+        }
+
+        return config('repository.perPage', $this->makeModel(false)->getPerPage());
+    }
+
 }
