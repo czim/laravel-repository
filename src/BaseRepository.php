@@ -72,6 +72,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
 
     /**
+     * Default number of paginated items
+     *
+     * @var integer
+     */
+    protected $perPage = 1;
+
+    /**
      * @param App        $app
      * @param Collection $collection
      * @throws RepositoryException
@@ -223,8 +230,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
+    public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
     {
+        if ( ! $perPage) {
+            $perPage = config('repository.perPage', $this->perPage);
+        }
+
         return $this->query()
                     ->paginate($perPage, $columns, $pageName, $page);
     }
