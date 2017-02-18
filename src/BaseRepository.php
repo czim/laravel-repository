@@ -94,10 +94,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->onceCriteria   = new Collection();
         $this->activeCriteria = new Collection();
 
-        if ( ! is_numeric($this->perPage) || $this->perPage < 1) {
-            $this->perPage = config('repository.perPage', 1);
-        }
-
         $this->makeModel();
     }
 
@@ -236,9 +232,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
     {
-        if ( ! $perPage) {
-            $perPage = $this->perPage;
-        }
+        $perPage = $perPage ?: $this->getDefaultPerPage();
 
         return $this->query()
                     ->paginate($perPage, $columns, $pageName, $page);
@@ -724,4 +718,24 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         return $this;
     }
+
+
+    // ------------------------------------------------------------------------------
+    //      Misc.
+    // ------------------------------------------------------------------------------
+
+    /**
+     * Returns default per page count.
+     *
+     * @return int
+     */
+    protected function getDefaultPerPage()
+    {
+        if (is_numeric($this->perPage) && $this->perPage > 0) {
+            return $this->perPage;
+        }
+
+        return config('repository.perPage', $this->makeModel(false)->getPerPage());
+    }
+
 }
