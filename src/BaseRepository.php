@@ -70,13 +70,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     protected $ignoreCriteria = false;
 
-
     /**
      * Default number of paginated items
      *
      * @var integer
      */
     protected $perPage = 1;
+
 
     /**
      * @param App        $app
@@ -116,7 +116,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Creates instance of model to start building query for
      *
      * @param bool $storeModel  if true, this becomes a fresh $this->model property
-     * @return EloquentBuilder
+     * @return Model
      * @throws RepositoryException
      */
     public function makeModel($storeModel = true)
