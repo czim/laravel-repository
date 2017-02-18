@@ -94,6 +94,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $this->onceCriteria   = new Collection();
         $this->activeCriteria = new Collection();
 
+        if ( ! is_numeric($this->perPage) || $this->perPage < 1) {
+            $this->perPage = config('repository.perPage', 1);
+        }
+
         $this->makeModel();
     }
 
@@ -233,7 +237,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
     {
         if ( ! $perPage) {
-            $perPage = config('repository.perPage', $this->perPage);
+            $perPage = $this->perPage;
         }
 
         return $this->query()
