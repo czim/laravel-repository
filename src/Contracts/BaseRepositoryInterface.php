@@ -148,12 +148,25 @@ interface BaseRepositoryInterface
     /**
      * Fill the model with an array of attributes.
      *
-     * @param  array  $attributes
+     * @param        $id
+     * @param array  $data
+     *
      * @return Model
      *
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
      */
-    public function fill(array $attributes);
+    public function fill($id, array $data);
+
+    /**
+     * Instance a new model and fill with data right away
+     *
+     * @param array  $data
+     *
+     * @return Model
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function make(array $data);
 
     /**
      * Deletes a model by $id
