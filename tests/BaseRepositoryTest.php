@@ -98,22 +98,44 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_fills_model_properties_without_persisting_the_model()
+    function it_fills_a_retrieved_model_attributes_without_storing_them_to_database()
     {
+        $persistedModel = $this->repository->all()->first();
+
         $attributes = [
             self::UNIQUE_FIELD => 'unique_field_value',
             self::SECOND_FIELD => 'second_field_value'
         ];
 
         // filling the model
-        $model = $this->repository->fill($attributes);
+        $filledModel = $this->repository->fill($persistedModel->id, $attributes);
 
         // asserting that only the desired attributes got filled and are the same
-        $this->assertEquals($attributes, $model->getAttributes());
+        $this->assertEquals($filledModel->getDirty(), $attributes);
 
         // asserting the the model had its attributes filled without being persisted
         $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
     }
+
+    /**
+     * @test
+     */
+    function it_creates_a_new_instance_and_fills_attributes_with_data()
+    {
+        $attributes = [
+            self::UNIQUE_FIELD => 'unique_field_value',
+            self::SECOND_FIELD => 'second_field_value'
+        ];
+
+        $model = $this->repository->make($attributes);
+
+        // asserting that only the desired attributes got filled and are the same
+        $this->assertEquals($attributes, $model->getDirty());
+
+        // asserting the the model had its attributes filled without being persisted
+        $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
+    }
+    
     /**
      * @test
      * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
