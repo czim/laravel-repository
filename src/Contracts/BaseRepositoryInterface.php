@@ -81,7 +81,7 @@ interface BaseRepositoryInterface
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null);
+    public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null);
 
     /**
      * @param       $id
