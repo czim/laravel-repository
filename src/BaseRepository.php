@@ -236,13 +236,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param  mixed $id
-     * @param  array $columns
-     * @return mixed
+     * @param  mixed       $id
+     * @param  array       $columns
+     * @param  string|null $attribute
+     * @return Model|null
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, $columns = ['*'], $attribute = null)
     {
-        return $this->query()->find($id, $columns);
+        $query = $this->query();
+
+        if (null !== $attribute && $attribute !== $query->getModel()->getKeyName()) {
+            return $query->where($attribute, $id)->first($columns);
+        }
+
+        return $query->find($id, $columns);
     }
 
     /**
@@ -363,9 +370,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param  string $attribute
      * @return bool     false if could not find model or not succesful in updating
      */
-    public function update(array $data, $id, $attribute = 'id')
+    public function update(array $data, $id, $attribute = null)
     {
-        $model = $this->makeModel(false)->find($id);
+        $model = $this->find($id, ['*'], $attribute);
 
         if (empty($model)) return false;
 
@@ -413,9 +420,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function delete($id)
     {
-        $model = $this->makeModel(false);
-
-        return $model->destroy($id);
+        return $this->makeModel(false)->destroy($id);
     }
 
 
