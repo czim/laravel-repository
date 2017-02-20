@@ -263,7 +263,7 @@ class BaseRepositoryTest extends TestCase
         $filledModel = $this->repository->fill($attributes, $persistedModel->id);
 
         $this->assertEquals($filledModel->getDirty(), $attributes);
-        $this->assertDatabaseMissing(static::TABLE_NAME, $attributes);
+        $this->notSeeInDatabase(static::TABLE_NAME, $attributes);
     }
 
 
