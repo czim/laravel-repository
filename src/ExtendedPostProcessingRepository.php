@@ -368,15 +368,14 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     }
 
     /**
-     * Override
-     *
-     * @param       $id
-     * @param array $columns
+     * @param  mixed       $id
+     * @param  array       $columns
+     * @param  string|null $attribute
      * @return Model|null
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, $columns = ['*'], $attribute = null)
     {
-        return $this->postProcess( parent::find($id, $columns) );
+        return $this->postProcess( parent::find($id, $columns, $attribute) );
     }
 
     /**

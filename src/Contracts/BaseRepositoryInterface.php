@@ -92,11 +92,12 @@ interface BaseRepositoryInterface
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null);
 
     /**
-     * @param       $id
-     * @param array $columns
-     * @return mixed
+     * @param  mixed       $id
+     * @param  array       $columns
+     * @param  string|null $attribute
+     * @return Model|null
      */
-    public function find($id, $columns = ['*']);
+    public function find($id, $columns = ['*'], $attribute = null);
 
     /**
      * Returns first match or throws exception if not found
@@ -149,9 +150,9 @@ interface BaseRepositoryInterface
      * @param array  $data
      * @param        $id
      * @param string $attribute
-     * @return bool     false if could not find model or not succesful in updating
+     * @return bool  false if could not find model or not succesful in updating
      */
-    public function update(array $data, $id, $attribute = 'id');
+    public function update(array $data, $id, $attribute = null);
 
     /**
      * Fill the model with an array of attributes.
