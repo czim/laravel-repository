@@ -236,13 +236,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param  mixed $id
-     * @param  array $columns
-     * @return mixed
+     * @param  mixed       $id
+     * @param  array       $columns
+     * @param  string|null $attribute
+     * @return Model|null
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, $columns = ['*'], $attribute = null)
     {
-        return $this->query()->find($id, $columns);
+        $query = $this->query();
+
+        if (null !== $attribute && $attribute !== $query->getModel()->getKeyName()) {
+            return $query->where($attribute, $id)->first($columns);
+        }
+
+        return $query->find($id, $columns);
     }
 
     /**
@@ -343,6 +350,18 @@ abstract class BaseRepository implements BaseRepositoryInterface
     // -------------------------------------------------------------------------
 
     /**
+     * Makes a new model without persisting it
+     *
+     * @param  array $data
+     * @return Model
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function make(array $data)
+    {
+        return $this->makeModel(false)->fill($data);
+    }
+
+    /**
      * Creates a model and returns it
      *
      * @param  array $data
@@ -350,9 +369,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function create(array $data)
     {
-        $model = $this->makeModel(false);
-
-        return $model->create($data);
+        return $this->makeModel(false)->create($data);
     }
 
     /**
@@ -363,13 +380,33 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param  string $attribute
      * @return bool     false if could not find model or not succesful in updating
      */
-    public function update(array $data, $id, $attribute = 'id')
+    public function update(array $data, $id, $attribute = null)
     {
-        $model = $this->makeModel(false)->find($id);
+        $model = $this->find($id, ['*'], $attribute);
 
         if (empty($model)) return false;
 
         return $model->fill($data)->save();
+    }
+
+    /**
+     * Finds and fills a model by id, without persisting changes
+     *
+     * @param  array  $data
+     * @param  mixed  $id
+     * @param  string $attribute
+     * @return Model|false
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill(array $data, $id, $attribute = null)
+    {
+        $model = $this->find($id, ['*'], $attribute);
+
+        if (empty($model)) {
+            throw (new ModelNotFoundException)->setModel($this->model());
+        }
+
+        return $model->fill($data);
     }
 
     /**
@@ -380,9 +417,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function delete($id)
     {
-        $model = $this->makeModel(false);
-
-        return $model->destroy($id);
+        return $this->makeModel(false)->destroy($id);
     }
 
 

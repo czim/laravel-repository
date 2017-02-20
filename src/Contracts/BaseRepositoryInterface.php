@@ -92,11 +92,12 @@ interface BaseRepositoryInterface
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null);
 
     /**
-     * @param       $id
-     * @param array $columns
-     * @return mixed
+     * @param  mixed       $id
+     * @param  array       $columns
+     * @param  string|null $attribute
+     * @return Model|null
      */
-    public function find($id, $columns = ['*']);
+    public function find($id, $columns = ['*'], $attribute = null);
 
     /**
      * Returns first match or throws exception if not found
@@ -136,6 +137,14 @@ interface BaseRepositoryInterface
     public function findWhere($where, $columns = ['*'], $or = false);
 
     /**
+     * Makes a new model without persisting it
+     *
+     * @param  array $data
+     * @return Model
+     */
+    public function make(array $data);
+
+    /**
      * Creates a model and returns it
      *
      * @param array $data
@@ -149,9 +158,19 @@ interface BaseRepositoryInterface
      * @param array  $data
      * @param        $id
      * @param string $attribute
-     * @return bool     false if could not find model or not succesful in updating
+     * @return bool  false if could not find model or not succesful in updating
      */
-    public function update(array $data, $id, $attribute = 'id');
+    public function update(array $data, $id, $attribute = null);
+
+    /**
+     * Finds and fills a model by id, without persisting changes
+     *
+     * @param  array  $data
+     * @param  mixed  $id
+     * @param  string $attribute
+     * @return Model|false
+     */
+    public function fill(array $data, $id, $attribute = null);
 
     /**
      * Deletes a model by $id
