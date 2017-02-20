@@ -98,28 +98,6 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_fills_a_retrieved_model_attributes_without_storing_them_to_database()
-    {
-        $persistedModel = $this->repository->all()->first();
-
-        $attributes = [
-            self::UNIQUE_FIELD => 'unique_field_value',
-            self::SECOND_FIELD => 'second_field_value'
-        ];
-
-        // filling the model
-        $filledModel = $this->repository->fill($persistedModel->id, $attributes);
-
-        // asserting that only the desired attributes got filled and are the same
-        $this->assertEquals($filledModel->getDirty(), $attributes);
-
-        // asserting the the model had its attributes filled without being persisted
-        $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
-    }
-
-    /**
-     * @test
-     */
     function it_creates_a_new_instance_and_fills_attributes_with_data()
     {
         $attributes = [
@@ -268,6 +246,24 @@ class BaseRepositoryTest extends TestCase
         $this->assertEquals(3, $this->repository->count(), "Total count after deleting does not match");
         $this->notSeeInDatabase(static::TABLE_NAME, [ 'id' => $model->id ]);
         unset($model);
+    }
+
+    /**
+     * @test
+     */
+    function it_fills_a_retrieved_model_attributes_without_persisting_it()
+    {
+        $persistedModel = $this->repository->all()->first();
+
+        $attributes = [
+            self::UNIQUE_FIELD => 'unique_field_value',
+            self::SECOND_FIELD => 'second_field_value'
+        ];
+
+        $filledModel = $this->repository->fill($attributes, $persistedModel->id);
+
+        $this->assertEquals($filledModel->getDirty(), $attributes);
+        $this->assertDatabaseMissing(static::TABLE_NAME, $attributes);
     }
 
 
