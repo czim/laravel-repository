@@ -137,6 +137,14 @@ interface BaseRepositoryInterface
     public function findWhere($where, $columns = ['*'], $or = false);
 
     /**
+     * Makes a new model without persisting it
+     *
+     * @param  array $data
+     * @return Model
+     */
+    public function make(array $data);
+
+    /**
      * Creates a model and returns it
      *
      * @param array $data
@@ -155,27 +163,14 @@ interface BaseRepositoryInterface
     public function update(array $data, $id, $attribute = null);
 
     /**
-     * Fill the model with an array of attributes.
+     * Finds and fills a model by id, without persisting changes
      *
-     * @param        $id
-     * @param array  $data
-     *
-     * @return Model
-     *
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     * @param  array  $data
+     * @param  mixed  $id
+     * @param  string $attribute
+     * @return Model|false
      */
-    public function fill($id, array $data);
-
-    /**
-     * Instance a new model and fill with data right away
-     *
-     * @param array  $data
-     *
-     * @return Model
-     *
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
-     */
-    public function make(array $data);
+    public function fill(array $data, $id, $attribute = null);
 
     /**
      * Deletes a model by $id
