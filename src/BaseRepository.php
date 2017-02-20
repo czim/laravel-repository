@@ -343,6 +343,18 @@ abstract class BaseRepository implements BaseRepositoryInterface
     // -------------------------------------------------------------------------
 
     /**
+     * Makes a new model without persisting it
+     *
+     * @param  array $data
+     * @return Model
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function make(array $data)
+    {
+        return $this->makeModel(false)->fill($data);
+    }
+
+    /**
      * Creates a model and returns it
      *
      * @param  array $data
@@ -350,9 +362,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function create(array $data)
     {
-        $model = $this->makeModel(false);
-
-        return $model->create($data);
+        return $this->makeModel(false)->create($data);
     }
 
     /**
@@ -373,34 +383,21 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Fill the model with an array of attributes.
+     * Finds and fills a model by id, without persisting changes
      *
-     * @param        $id
-     * @param array  $data
-     *
-     * @return Model
-     *
+     * @param  array  $data
+     * @param  mixed  $id
+     * @param  string $attribute
+     * @return Model|false
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
      */
-    public function fill($id, array $data)
+    public function fill(array $data, $id, $attribute = null)
     {
-        $model = $this->makeModel(false)->find($id);
+        $model = $this->find($id, ['*'], $attribute);
 
-        return $model->fill($data);
-    }
-
-    /**
-     * Instance a new model and fill with data right away
-     *
-     * @param array  $data
-     *
-     * @return Model
-     *
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
-     */
-    public function make(array $data)
-    {
-        $model = $this->makeModel(false);
+        if (empty($model)) {
+            throw (new ModelNotFoundException)->setModel($this->model());
+        }
 
         return $model->fill($data);
     }
