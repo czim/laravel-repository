@@ -373,6 +373,39 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
+     * Fill the model with an array of attributes.
+     *
+     * @param        $id
+     * @param array  $data
+     *
+     * @return Model
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill($id, array $data)
+    {
+        $model = $this->makeModel(false)->find($id);
+
+        return $model->fill($data);
+    }
+
+    /**
+     * Instance a new model and fill with data right away
+     *
+     * @param array  $data
+     *
+     * @return Model
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function make(array $data)
+    {
+        $model = $this->makeModel(false);
+
+        return $model->fill($data);
+    }
+
+    /**
      * Deletes a model by id
      *
      * @param  mixed $id
