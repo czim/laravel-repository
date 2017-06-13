@@ -3,9 +3,11 @@ namespace Czim\Repository;
 
 use Czim\Repository\Contracts\BaseRepositoryInterface;
 use Czim\Repository\Contracts\CriteriaInterface;
+use Czim\Repository\Contracts\LengthAwarePaginatorInterface;
 use Czim\Repository\Criteria\NullCriteria;
 use Czim\Repository\Exceptions\RepositoryException;
 use Closure;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
@@ -225,7 +227,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param  array  $columns
      * @param  string $pageName
      * @param  null   $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginatorInterface|LengthAwarePaginator
      */
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
     {
