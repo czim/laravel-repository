@@ -266,7 +266,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         if ( ! empty($result)) return $result;
 
-        throw (new ModelNotFoundException)->setModel($this->model());
+        throw (new ModelNotFoundException)->setModel($this->model(), $id);
     }
 
     /**
