@@ -9,6 +9,7 @@ use Czim\Repository\Criteria\Common\IsActive;
 use Czim\Repository\Criteria\Common\OrderBy;
 use Czim\Repository\Criteria\Common\Scope;
 use Czim\Repository\Criteria\Common\Scopes;
+use Czim\Repository\Criteria\Common\Take;
 use Czim\Repository\Criteria\Common\WhereHas;
 use Czim\Repository\Criteria\Common\WithRelations;
 use Czim\Repository\Enums\CriteriaKey;
@@ -175,6 +176,16 @@ class CommonCriteriaTest extends TestCase
             $this->repository->findBy(self::UNIQUE_FIELD, '1337')->getRelations(),
             "Model does not include translations relation with WithRelations Criteria"
         );
+    }
+
+    /**
+     * @test
+     */
+    function take_criteria_works()
+    {
+        $this->repository->pushCriteria(new Take(2));
+
+        $this->assertCount(2, $this->repository->all(), "Take Criteria doesn't work");
     }
 
 }
