@@ -4,6 +4,7 @@ namespace Czim\Repository\Test;
 use Czim\Repository\Contracts\BaseRepositoryInterface;
 use Czim\Repository\Test\Helpers\TestSimpleModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 
 class BaseRepositoryTest extends TestCase
@@ -18,7 +19,7 @@ class BaseRepositoryTest extends TestCase
     protected $repository;
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -116,21 +117,23 @@ class BaseRepositoryTest extends TestCase
     
     /**
      * @test
-     * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     function it_throws_an_exception_when_findorfail_does_not_find_anything()
     {
+        $this->expectException(ModelNotFoundException::class);
+
         $this->repository->findOrFail(895476);
     }
 
     /**
      * @test
-     * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     function it_throws_an_exception_when_firstorfail_does_not_find_anything()
     {
+        $this->expectException(ModelNotFoundException::class);
+
         // make sure we won't find anything
-        $mockCriteria = $this->makeMockCriteria($this->exactly(1), 'MockCriteria', function($query) {
+        $mockCriteria = $this->makeMockCriteria('once', 'MockCriteria', function($query) {
             return $query->where('name', 'some name that certainly does not exist');
         });
         $this->repository->pushCriteria($mockCriteria);
@@ -205,10 +208,11 @@ class BaseRepositoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InvalidArgumentException
      */
     function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->repository->allCallback( function() {
             return 'incorrect return value';
         });
@@ -278,7 +282,7 @@ class BaseRepositoryTest extends TestCase
     {
         $this->assertTrue($this->repository->defaultCriteria()->isEmpty(), "Defaultcriteria is not empty");
 
-        $this->repository->pushCriteria($this->makeMockCriteria($this->never(), 'MockCriteria'));
+        $this->repository->pushCriteria($this->makeMockCriteria('never', 'MockCriteria'));
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
 
         $this->repository->restoreDefaultCriteria();
@@ -302,11 +306,12 @@ class BaseRepositoryTest extends TestCase
 
 
         // add new criteria, see if it is applied
-        $criteria = $this->makeMockCriteria($this->exactly(2), 'MockCriteria', function($query) {
+        $criteria = $this->makeMockCriteria('twice', 'MockCriteria', function ($query) {
             return $query->where(self::UNIQUE_FIELD, '1337');
         });
         $this->repository->pushCriteria($criteria, 'TemporaryCriteria');
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
+
         $this->assertRegExp(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
@@ -339,7 +344,7 @@ class BaseRepositoryTest extends TestCase
 
 
         // override criteria once, see if it is overridden succesfully and not called
-        $secondCriteria = $this->makeMockCriteria($this->exactly(1), 'SecondCriteria', function($query) {
+        $secondCriteria = $this->makeMockCriteria('once', 'SecondCriteria', function($query) {
             return $query->where(self::SECOND_FIELD, '12345');
         });
         $this->repository->pushCriteriaOnce($secondCriteria, 'TemporaryCriteria');
@@ -367,7 +372,7 @@ class BaseRepositoryTest extends TestCase
 
 
         // override criteria once, see if it is changed
-        $criteria = $this->makeMockCriteria($this->exactly(1), 'MockCriteria', function($query) {
+        $criteria = $this->makeMockCriteria('once', 'MockCriteria', function($query) {
             return $query->where(self::UNIQUE_FIELD, '1337');
         });
         $this->repository->pushCriteriaOnce($criteria);

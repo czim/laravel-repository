@@ -16,7 +16,7 @@ class ExtendedRepositoryTest extends TestCase
     protected $repository;
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -165,7 +165,7 @@ class ExtendedRepositoryTest extends TestCase
         //   when settings have changed on the repository (cache, active, scopes)
 
         // create spy Criteria to check how many times we apply the criteria
-        $mockCriteria = $this->makeMockCriteria($this->exactly(6), 'FirstMockCriteria');
+        $mockCriteria = $this->makeMockCriteria(6, 'FirstMockCriteria');
         $this->repository->pushCriteria($mockCriteria);
 
         // first call, should apply +1
@@ -183,12 +183,12 @@ class ExtendedRepositoryTest extends TestCase
         $this->repository->count();
 
         // call after pushing new criteria +1
-        $mockCriteriaTwo = $this->makeMockCriteria($this->exactly(2), 'SecondMockCriteria');
+        $mockCriteriaTwo = $this->makeMockCriteria('twice', 'SecondMockCriteria');
         $this->repository->pushCriteria($mockCriteriaTwo, 'MockTwo');
         $this->repository->count();
 
         // call with once-criteria set +1 (and +1 for mock Two)
-        $mockOnce = $this->makeMockCriteria($this->exactly(1), 'OnceMockCriteria');
+        $mockOnce = $this->makeMockCriteria('once', 'OnceMockCriteria');
         $this->repository->pushCriteriaOnce($mockOnce);
         $this->repository->count();
 

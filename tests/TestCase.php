@@ -5,9 +5,8 @@ use Closure;
 use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Test\Helpers\TranslatableConfig;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
-use PHPUnit_Framework_MockObject_MockObject;
+use Mockery;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -28,6 +27,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function getEnvironmentSetUp($app)
     {
+        parent::getEnvironmentSetUp($app);
+
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
@@ -43,7 +44,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     }
 
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -54,10 +55,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function migrateDatabase()
     {
-        $db = $this->app->make('db');
-
         // model we can test anything but translations with
-        Schema::create(self::TABLE_NAME_SIMPLE, function($table) {
+        Schema::create(self::TABLE_NAME_SIMPLE, function ($table) {
             $table->increments('id');
             $table->string('unique_field', 20);
             $table->integer('second_field')->unsigned()->nullable();
@@ -68,7 +67,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         });
 
         // model we can also test translations with
-        Schema::create(self::TABLE_NAME_EXTENDED, function($table) {
+        Schema::create(self::TABLE_NAME_EXTENDED, function ($table) {
             $table->increments('id');
             $table->string('unique_field', 20);
             $table->integer('second_field')->unsigned()->nullable();
@@ -79,7 +78,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->timestamps();
         });
 
-        Schema::create(self::TABLE_NAME_EXTENDED_TRANSLATIONS, function($table) {
+        Schema::create(self::TABLE_NAME_EXTENDED_TRANSLATIONS, function ($table) {
             $table->increments('id');
             $table->integer('test_extended_model_id')->unsigned();
             $table->string('locale', 12);
@@ -97,33 +96,36 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      * If no callback is given, it will simply return the model/query unaltered
      * (and have no effect).
      *
-     * @param null     $expects
-     * @param string   $name
-     * @param Closure  $callback    the callback for the apply() method on the Criteria
-     * @return PHPUnit_Framework_MockObject_MockObject
+     * @param null|string $expects
+     * @param string      $name
+     * @param Closure     $callback the callback for the apply() method on the Criteria
+     * @return Mockery\Mock|Mockery\MockInterface|CriteriaInterface
      */
     protected function makeMockCriteria($expects = null, $name = 'MockCriteria', Closure $callback = null)
     {
-        $mock = $this->getMockBuilder(CriteriaInterface::class)
-            ->disableOriginalConstructor()
-            ->setMockClassName($name)
-            ->getMock();
+        $mock = Mockery::mock(CriteriaInterface::class);
 
-        if (is_null($callback)) {
-            $callback = function($model) { return $model; };
+        if ($callback === null) {
+            $callback = function ($model) {
+                return $model;
+            };
         }
 
-        if (is_null($expects)) {
-
-            $mock->method('apply')
-                ->will($this->returnCallback( $callback ));
+        if ( ! $expects) {
+            $mock->shouldReceive('apply')->andReturnUsing($callback);
             return $mock;
         }
 
+        if (is_integer($expects)) {
+            $mock->shouldReceive('apply')
+                ->times($expects)
+                ->andReturnUsing($callback);
+        } else {
+            $mock->shouldReceive('apply')
+                ->{$expects}()
+                ->andReturnUsing($callback);
+        }
 
-        $mock->expects($expects)
-            ->method('apply')
-            ->will($this->returnCallback( $callback ));
 
         return $mock;
     }
