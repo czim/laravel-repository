@@ -1,6 +1,8 @@
 <?php
 namespace Czim\Repository\Traits;
 
+use Czim\Listify\Contracts\ListifyInterface;
+
 trait HandlesListifyModelsTrait
 {
     /**

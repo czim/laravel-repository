@@ -3,7 +3,7 @@ namespace Czim\Repository\Test\Helpers;
 
 use Dimsav\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
-use Lookitsatravis\Listify\Listify;
+use Czim\Listify\Listify;
 use Watson\Rememberable\Rememberable;
 
 class TestExtendedModel extends Model
