@@ -1,7 +1,7 @@
 <?php
 namespace Czim\Repository\Test\Helpers;
 
-use Dimsav\Translatable\Translatable;
+use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Czim\Listify\Listify;
 use Watson\Rememberable\Rememberable;
