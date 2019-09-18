@@ -14,7 +14,7 @@
     "authors": [
         {
             "name": "Coen Zimmerman",
-            "email": "coen@pixelindustries.com",
+            "email": "coen@pxlwidgets.com",
             "homepage": "http://www.pixelindustries.com",
             "role": "Developer"
         }
@@ -26,8 +26,7 @@
         "myclabs/php-enum": "^1.7"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^8.0",
-        "scrutinizer/ocular": "~1.1",
+        "phpunit/phpunit" : "^7.0|^8.0",
         "orchestra/testbench": "^4.0",
         "watson/rememberable": "dev-master",
         "astrotomic/laravel-translatable": "^11.5",
