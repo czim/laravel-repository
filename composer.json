@@ -21,16 +21,16 @@
     ],
     "require": {
         "php" : ">=7.1.3",
-        "illuminate/support": "^5.2",
-        "illuminate/database": "^5.2",
-        "myclabs/php-enum": "^1.4"
+        "illuminate/support": "^6.0",
+        "illuminate/database": "^6.0",
+        "myclabs/php-enum": "^1.7"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^7.0",
+        "phpunit/phpunit" : "^8.0",
         "scrutinizer/ocular": "~1.1",
-        "orchestra/testbench": "3.8.*",
+        "orchestra/testbench": "^4.0",
         "watson/rememberable": "dev-master",
-        "dimsav/laravel-translatable": "~9.0",
+        "astrotomic/laravel-translatable": "^11.5",
         "czim/laravel-listify": "~1.1.0"
     },
     "autoload": {

@@ -2,6 +2,7 @@
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
+use Illuminate\Support\Arr;
 
 /**
  * Applies a bunch of scopes
@@ -51,7 +52,7 @@ class Scopes extends AbstractCriteria
             }
 
             // problems if the first param is not a string
-            if ( ! is_string(array_get($scopeSet, '0'))) {
+            if ( ! is_string(Arr::get($scopeSet, '0'))) {
                 throw new \Exception("First parameter of scopeset must be a string (the scope name)!");
             }
 
