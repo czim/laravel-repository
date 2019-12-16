@@ -227,7 +227,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param  null   $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null)
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
         $perPage = $perPage ?: $this->getDefaultPerPage();
 
@@ -764,11 +764,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     protected function getDefaultPerPage()
     {
-        if (is_numeric($this->perPage) && $this->perPage > 0) {
-            return $this->perPage;
-        }
+        $perPage = (is_numeric($this->perPage) && $this->perPage > 0)
+            ? $this->perPage
+            : $this->makeModel(false)->getPerPage();
 
-        return config('repository.perPage', $this->makeModel(false)->getPerPage());
+        return config('repository.perPage', $perPage);
     }
 
 }
