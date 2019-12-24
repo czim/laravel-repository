@@ -554,6 +554,27 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
+     * Returns a cloned set of all currently set once criteria.
+     *
+     * @return Collection
+     */
+    public function getOnceCriteria()
+    {
+        return clone $this->onceCriteria;
+    }
+
+    /**
+     * Returns a cloned set of all currently set criteria (not including
+     * those to be applied once).
+     *
+     * @return Collection
+     */
+    public function getAllCriteria()
+    {
+        return $this->getCriteria()->merge($this->getOnceCriteria());
+    }
+
+    /**
      * Returns the criteria that must be applied for the next query
      *
      * @return Collection
