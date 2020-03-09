@@ -5,6 +5,7 @@ use Czim\Repository\BaseRepository;
 use Czim\Repository\RepositoryServiceProvider;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 
 class MakeRepositoryCommand extends GeneratorCommand
@@ -92,8 +93,9 @@ class MakeRepositoryCommand extends GeneratorCommand
     /**
      * Build the class with the given name.
      *
-     * @param  string $name
+     * @param string $name
      * @return string
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     protected function buildClass($name)
     {
@@ -156,7 +158,7 @@ class MakeRepositoryCommand extends GeneratorCommand
             $repositoryClass = str_replace($this->getNamespace($name) . '\\', '', $name);
             $class           = str_replace($this->suffix, '', $repositoryClass);
 
-            $modelClass = str_singular($class);
+            $modelClass = Str::singular($class);
         }
 
         // Append the expected models namespace if not namespaced yet
