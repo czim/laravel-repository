@@ -18,14 +18,15 @@ I prefer using them to make for easier unit testing in large projects.
 
 ## Version Compatibility
 
- Laravel      | Package 
+ Laravel      | Package
 :-------------|:--------
- 5.1          | 1.0.x
- 5.2          | 1.2.x
- 5.3          | 1.2.x
- 5.4 to 5.8   | 1.4.x
- 6.0 and up   | 2.x
- 
+ 5.1          | 1.0
+ 5.2          | 1.2
+ 5.3          | 1.2
+ 5.4 to 5.8   | 1.4
+ 6.0          | 2.0
+ 7.0          | 2.1
+
 ## Install
 
 Via Composer
@@ -51,7 +52,7 @@ php artisan vendor:publish --tag="repository"
 
 Simply extend the (abstract) repository class of your choice, either `Czim\Repository\BaseRepository`, `Czim\Repository\ExtendedRepository` or `Czim\Repository\ExtendedPostProcessingRepository`.
 
-The only abstract method that must be provided is the `model` method (this is just like the way Bosnadev's repositories are used). 
+The only abstract method that must be provided is the `model` method (this is just like the way Bosnadev's repositories are used).
 
 
 ### Make Repository
@@ -93,8 +94,8 @@ Depending on what you require, three different abstract repository classes may b
 ### Using the repository to retrieve models
 
 Apart from the basic stuff (inspired by Bosnadev), there are some added methods for retrieval:
- 
-* `query()`: returns an Eloquent\Builder object reflecting the active criteria, for added flexibility  
+
+* `query()`: returns an Eloquent\Builder object reflecting the active criteria, for added flexibility
 * `count()`
 * `first()`
 * `findOrFail()`: just like `find()`, but throws an exception if nothing found
@@ -121,7 +122,7 @@ This allows you to later remove the Criteria by referring to its key:
 
 ``` php
     // you can remove Criteria by key
-    $repository->removeCriteria('KeyForCriteria'); 
+    $repository->removeCriteria('KeyForCriteria');
 ```
 
 To change the Criteria that are to be used only for one call, there are helper methods that will preserve your currently active Criteria.
@@ -130,7 +131,7 @@ If you use any of the following, the active Criteria are applied (insofar they a
 ``` php
     // you can push one-time Criteria
     $repository->pushCriteriaOnce(new SomeOtherCriteria());
-    
+
     // you can override active criteria once by using its key
     $repository->pushCriteriaOnce(new SomeOtherCriteria(), 'KeyForCriteria');
 
@@ -140,15 +141,15 @@ If you use any of the following, the active Criteria are applied (insofar they a
 
 Note that this means that *only* Criteria that have keys can be removed or overridden this way.
 A `CriteriaKey` Enum is provided to more easily refer to the standard keys used in the `ExtendedRepository`, such as 'active', 'cache' and 'scope'.
- 
+
 
 ## Configuration
-No configuration is required to start using the repository. You use it by extending an abstract repository class of your choice. 
+No configuration is required to start using the repository. You use it by extending an abstract repository class of your choice.
 
 ### Extending the classes
 Some properties and methods may be extended for tweaking the way things work.
-For now there is no documentation about this (I will add some later), but the repository classes contain many comments to help you find your way (mainly check the `ExtendedRepository` class). 
- 
+For now there is no documentation about this (I will add some later), but the repository classes contain many comments to help you find your way (mainly check the `ExtendedRepository` class).
+
 ### Traits
 Additionally, there are some traits that may be used to extend the functionality of the repositories, see `Czim\Repository\Traits`:
 
@@ -157,7 +158,7 @@ Additionally, there are some traits that may be used to extend the functionality
 * `HandlesEloquentSavingTrait`
 * `HandlesListifyModelsTrait` (only useful in combination with the [lookitsatravis/listify](https://github.com/lookitsatravis/listify) package)
 
-I've added these mainly because they may help in using the repository pattern as a means to make unit testing possible without having to mock Eloquent models. 
+I've added these mainly because they may help in using the repository pattern as a means to make unit testing possible without having to mock Eloquent models.
 
 
 ## Contributing
