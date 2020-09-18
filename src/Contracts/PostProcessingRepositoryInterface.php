@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Repository\Contracts;
 
 use Closure;
@@ -19,7 +20,7 @@ interface PostProcessingRepositoryInterface
      * and the parameters (if any) set for them, so any updates on the
      * repository are reflected by the processors.
      *
-     * @return Collection
+     * @return Collection|PostProcessorInterface[]
      */
     public function defaultPostProcessors();
 
@@ -33,8 +34,8 @@ interface PostProcessingRepositoryInterface
     /**
      * Pushes a postProcessor to apply to all models retrieved
      *
-     * @param string        $class
-     * @param array|Closure $parameters
+     * @param string             $class
+     * @param array|Closure|null $parameters
      * @return $this
      */
     public function pushPostProcessor($class, $parameters = null);
@@ -42,7 +43,7 @@ interface PostProcessingRepositoryInterface
     /**
      * Removes postProcessor
      *
-     * @param $class
+     * @param string $class
      * @return $this
      */
     public function removePostProcessor($class);
@@ -52,7 +53,7 @@ interface PostProcessingRepositoryInterface
      * through postprocessing.
      *
      * @param Collection|Model|null $result the result of the query, ready for postprocessing
-     * @return Model|Collection|null
+     * @return Model|Collection|mixed[]|null
      */
     public function postProcess($result);
 
@@ -94,5 +95,4 @@ interface PostProcessingRepositoryInterface
      * Resets any hidden or unhidden attribute changes
      */
     public function resetHiddenAttributes();
-
 }

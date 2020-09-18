@@ -1,6 +1,7 @@
 <?php
 namespace Czim\Repository;
 
+use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Contracts\PostProcessingRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Support\Arrayable;
@@ -16,20 +17,18 @@ use InvalidArgumentException;
 use ReflectionClass;
 
 /**
- * Class ExtendedPostProcessingRepository
- *
  * Extends the ExtendedRepository with PostProcessing functionality,
  * including convenience methods for hiding/unhiding Model properties.
  */
 abstract class ExtendedPostProcessingRepository extends ExtendedRepository implements PostProcessingRepositoryInterface
 {
     /**
-     * @var array
+     * @var string[]
      */
     protected $extraHidden = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $extraUnhidden = [];
 
@@ -44,8 +43,8 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
 
 
     /**
-     * @param App  $app
-     * @param Collection $collection
+     * @param App                            $app
+     * @param Collection|CriteriaInterface[] $collection
      */
     public function __construct(App $app, Collection $collection)
     {
@@ -66,7 +65,7 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
      * and the parameters (if any) set for them, so any updates on the
      * repository are reflected by the processors.
      *
-     * @return Collection
+     * @return Collection|PostProcessorInterface[]
      */
     public function defaultPostProcessors()
     {
@@ -97,8 +96,8 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Pushes a postProcessor to apply to all models retrieved
      *
-     * @param string        $class
-     * @param array|Closure $parameters
+     * @param string             $class
+     * @param array|Closure|null $parameters
      * @return $this
      */
     public function pushPostProcessor($class, $parameters = null)
@@ -111,7 +110,7 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Removes postProcessor
      *
-     * @param $class
+     * @param string $class
      * @return $this
      */
     public function removePostProcessor($class)
@@ -126,7 +125,7 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
      * through postprocessing.
      *
      * @param Collection|Model|null $result the result of the query, ready for postprocessing
-     * @return Model|Collection|null
+     * @return Model|Collection|mixed[]|null
      */
     public function postProcess($result)
     {
@@ -347,7 +346,7 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Override
      *
-     * @param array $columns
+     * @param  array $columns
      * @return mixed
      */
     public function all($columns = ['*'])
@@ -356,10 +355,10 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     }
 
     /**
-     * @param int $perPage
-     * @param array $columns
-     * @param string $pageName
-     * @param null $page
+     * @param  int    $perPage
+     * @param  array  $columns
+     * @param  string $pageName
+     * @param  null   $page
      * @return LengthAwarePaginator|null
      */
     public function paginate($perPage = 1, $columns = ['*'], $pageName = 'page', $page = null)
@@ -381,8 +380,8 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Override
      *
-     * @param       $id
-     * @param array $columns
+     * @param int|string $id
+     * @param array      $columns
      * @return Model
      * @throws ModelNotFoundException
      */
@@ -394,9 +393,9 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Override
      *
-     * @param       $attribute
-     * @param       $value
-     * @param array $columns
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $columns
      * @return Model|Null
      */
     public function findBy($attribute, $value, $columns = ['*'])
@@ -406,9 +405,9 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     /**
      * Override
      *
-     * @param       $attribute
-     * @param       $value
-     * @param array $columns
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $columns
      * @return mixed
      */
     public function findAllBy($attribute, $value, $columns = ['*'])
@@ -457,5 +456,4 @@ abstract class ExtendedPostProcessingRepository extends ExtendedRepository imple
     {
         return $this->postProcess( parent::findCallback($callback, $columns) );
     }
-
 }

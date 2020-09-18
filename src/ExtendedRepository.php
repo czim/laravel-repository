@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Repository;
 
 use Czim\Repository\Contracts\ExtendedRepositoryInterface;
@@ -7,8 +8,6 @@ use Illuminate\Support\Collection;
 use Czim\Repository\Enums\CriteriaKey;
 
 /**
- * Class ExtendedRepository
- *
  * Extends BaseRepository with extra functionality:
  *
  *      - setting default criteria to apply
@@ -21,7 +20,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     /**
      * Override if model has a basic 'active' field
      *
-     * @var boolean
+     * @var bool
      */
     protected $hasActive = false;
 
@@ -325,11 +324,11 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     // -------------------------------------------------------------------------
 
     /**
-     * Update the active boolean for a record
+     * Update the active flag for a record
      *
      * @param int     $id
-     * @param boolean $active
-     * @return boolean
+     * @param bool $active
+     * @return bool
      */
     public function activateRecord($id, $active = true)
     {
@@ -339,9 +338,8 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
 
         if ( ! ($model = $model->find($id))) return false;
 
-        $model->{$this->activeColumn} = (boolean) $active;
+        $model->{$this->activeColumn} = (bool) $active;
 
         return $model->save();
     }
-
 }

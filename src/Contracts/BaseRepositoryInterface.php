@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Repository\Contracts;
 
 use Closure;
@@ -10,13 +11,12 @@ use Illuminate\Support\Collection;
 
 interface BaseRepositoryInterface
 {
-
     /**
      * Returns specified model class name.
      *
      * Note that this is the only abstract method.
      *
-     * @return Model
+     * @return string
      */
     public function model();
 
@@ -82,17 +82,16 @@ interface BaseRepositoryInterface
     public function lists($value, $key = null);
 
     /**
-     * @param int $perPage
-     * @param array $columns
+     * @param int    $perPage
+     * @param array  $columns
      * @param string $pageName
-     * @param null $page
-     *
+     * @param null   $page
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage, $columns = ['*'], $pageName = 'page', $page = null);
 
     /**
-     * @param  mixed       $id
+     * @param  int|string  $id
      * @param  array       $columns
      * @param  string|null $attribute
      * @return Model|null
@@ -102,25 +101,25 @@ interface BaseRepositoryInterface
     /**
      * Returns first match or throws exception if not found
      *
-     * @param int   $id
-     * @param array $columns
+     * @param  int|string $id
+     * @param  array      $columns
      * @return Model
      * @throws ModelNotFoundException
      */
     public function findOrFail($id, $columns = ['*']);
 
     /**
-     * @param       $attribute
-     * @param       $value
-     * @param array $columns
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $columns
      * @return mixed
      */
     public function findBy($attribute, $value, $columns = ['*']);
 
     /**
-     * @param       $attribute
-     * @param       $value
-     * @param array $columns
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $columns
      * @return mixed
      */
     public function findAllBy($attribute, $value, $columns = ['*']);
@@ -265,7 +264,7 @@ interface BaseRepositoryInterface
      * Note that this does NOT overrule any onceCriteria, even if set by key!
      *
      * @param CriteriaInterface $criteria
-     * @param string            $key          unique identifier to store criteria as
+     * @param string|null       $key          unique identifier to store criteria as
      *                                        this may be used to remove and overwrite criteria
      *                                        empty for normal automatic numeric key
      * @return $this
@@ -286,7 +285,7 @@ interface BaseRepositoryInterface
      * to default for ALL Criteria.
      *
      * @param CriteriaInterface $criteria
-     * @param string            $key
+     * @param string|null       $key
      * @return $this
      */
     public function pushCriteriaOnce(CriteriaInterface $criteria, $key = null);
@@ -303,5 +302,4 @@ interface BaseRepositoryInterface
      * @return $this
      */
     public function removeCriteriaOnce($key);
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Czim\Repository;
 
 use Czim\Repository\Contracts\BaseRepositoryInterface;
@@ -16,8 +17,6 @@ use Illuminate\Container\Container as App;
 use InvalidArgumentException;
 
 /**
- * Class BaseRepository
- *
  * Basic repository for retrieving and manipulating Eloquent models.
  *
  * One of the main differences with Bosnadev's repository is that With this,
@@ -43,14 +42,14 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Criteria to keep and use for all coming queries
      *
-     * @var Collection
+     * @var Collection|CriteriaInterface[]
      */
     protected $criteria;
 
     /**
      * The Criteria to only apply to the next query
      *
-     * @var Collection
+     * @var Collection|CriteriaInterface[]
      */
     protected $onceCriteria;
 
@@ -59,7 +58,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * So this is a dynamic list that can change during calls of various repository
      * methods that alter the active criteria.
      *
-     * @var array
+     * @var array|CriteriaInterface[]
      */
     protected $activeCriteria = null;
 
@@ -79,8 +78,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
 
     /**
-     * @param  App        $app
-     * @param  Collection $collection
+     * @param App                            $app
+     * @param Collection|CriteriaInterface[] $collection
      * @throws RepositoryException
      */
     public function __construct(App $app, Collection $collection)
@@ -109,7 +108,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Creates instance of model to start building query for
      *
-     * @param  bool $storeModel  if true, this becomes a fresh $this->model property
+     * @param bool $storeModel  if true, this becomes a fresh $this->model property
      * @return Model
      * @throws RepositoryException
      */
@@ -194,8 +193,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param  string $value
-     * @param  string $key
+     * @param  string      $value
+     * @param  string|null $key
      * @return array
      */
     public function pluck($value, $key = null)
@@ -210,8 +209,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * @param  string $value
-     * @param  string $key
+     * @param  string      $value
+     * @param  string|null $key
      * @return array
      * @deprecated
      */
@@ -255,8 +254,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns first match or throws exception if not found
      *
-     * @param int   $id
-     * @param array $columns
+     * @param int|string $id
+     * @param array      $columns
      * @return Model
      * @throws ModelNotFoundException
      */
@@ -299,8 +298,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Find a collection of models by the given query conditions.
      *
      * @param  array|Arrayable $where
-     * @param  array $columns
-     * @param  bool  $or
+     * @param  array           $columns
+     * @param  bool            $or
      * @return Collection|null
      */
     public function findWhere($where, $columns = ['*'], $or = false)
@@ -375,9 +374,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Updates a model by id
      *
-     * @param  array  $data
-     * @param  mixed  $id
-     * @param  string $attribute
+     * @param  array       $data
+     * @param  mixed       $id
+     * @param  string|null $attribute
      * @return bool     false if could not find model or not succesful in updating
      */
     public function update(array $data, $id, $attribute = null)
@@ -392,9 +391,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Finds and fills a model by id, without persisting changes
      *
-     * @param  array  $data
-     * @param  mixed  $id
-     * @param  string $attribute
+     * @param  array       $data
+     * @param  mixed       $id
+     * @param  string|null $attribute
      * @return Model|false
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
      */
@@ -413,7 +412,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Deletes a model by id
      *
      * @param  mixed $id
-     * @return boolean
+     * @return bool
      */
     public function delete($id)
     {
@@ -494,7 +493,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Override with your own defaults (check ExtendedRepository's refreshed,
      * named Criteria for examples).
      *
-     * @return Collection;
+     * @return Collection|CriteriaInterface[]
      */
     public function defaultCriteria()
     {
@@ -546,7 +545,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection
+     * @return Collection|CriteriaInterface[]
      */
     public function getCriteria()
     {
@@ -556,7 +555,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns a cloned set of all currently set once criteria.
      *
-     * @return Collection
+     * @return Collection|CriteriaInterface[]
      */
     public function getOnceCriteria()
     {
@@ -567,7 +566,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection
+     * @return Collection|CriteriaInterface[]
      */
     public function getAllCriteria()
     {
@@ -577,7 +576,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns the criteria that must be applied for the next query
      *
-     * @return Collection
+     * @return Collection|CriteriaInterface[]
      */
     protected function getCriteriaToApply()
     {
@@ -659,7 +658,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Checks whether the criteria that are currently pushed
      * are the same as the ones that were previously applied
      *
-     * @return mixed
+     * @return bool
      */
     protected function areActiveCriteriaUnchanged()
     {
@@ -694,7 +693,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Note that this does NOT overrule any onceCriteria, even if set by key!
      *
      * @param  CriteriaInterface $criteria
-     * @param  string            $key       unique identifier to store criteria as
+     * @param  string|null       $key       unique identifier to store criteria as
      *                                      this may be used to remove and overwrite criteria
      *                                      empty for normal automatic numeric key
      * @return $this
@@ -733,7 +732,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * to default for ALL Criteria.
      *
      * @param  CriteriaInterface $criteria
-     * @param  string            $key
+     * @param  string|null       $key
      * @return $this
      */
     public function pushCriteriaOnce(CriteriaInterface $criteria, $key = null)
@@ -791,5 +790,4 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         return config('repository.perPage', $perPage);
     }
-
 }
