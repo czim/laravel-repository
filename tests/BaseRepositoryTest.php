@@ -114,7 +114,7 @@ class BaseRepositoryTest extends TestCase
         // asserting the the model had its attributes filled without being persisted
         $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
     }
-    
+
     /**
      * @test
      */
@@ -298,7 +298,7 @@ class BaseRepositoryTest extends TestCase
         // clear all criteria, see if none are applied
         $this->repository->clearCriteria();
         $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty after clearCriteria()");
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
             $this->repository->query()->toSql(),
             "Query SQL should be totally basic after clearCriteria()"
@@ -312,7 +312,7 @@ class BaseRepositoryTest extends TestCase
         $this->repository->pushCriteria($criteria, 'TemporaryCriteria');
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
             "Query SQL should be altered by pushing Criteria"
@@ -320,7 +320,7 @@ class BaseRepositoryTest extends TestCase
 
         // set repository to ignore criteria, see if they do not get applied
         $this->repository->ignoreCriteria();
-        $this->assertNotRegExp(
+        $this->assertDoesNotMatchRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
             "Query SQL should be altered by pushing Criteria"
@@ -331,12 +331,12 @@ class BaseRepositoryTest extends TestCase
         // remove criteria once, see if it is not applied
         $this->repository->removeCriteriaOnce('TemporaryCriteria');
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() should still have a count of one if only removing temporarily");
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
             $this->repository->query()->toSql(),
             "Query SQL should be totally basic while removing Criteria once"
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
             "Query SQL should be altered again on next call after removing Criteria once"
@@ -349,12 +349,12 @@ class BaseRepositoryTest extends TestCase
         });
         $this->repository->pushCriteriaOnce($secondCriteria, 'TemporaryCriteria');
         $sql = $this->repository->query()->toSql();
-        $this->assertNotRegExp(
+        $this->assertDoesNotMatchRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $sql,
             "Query SQL should not be built using first TemporaryCriteria"
         );
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#where [`\"]" . self::SECOND_FIELD . "[`\"] =#i",
             $sql,
             "Query SQL should be built using the overriding Criteria"
@@ -364,7 +364,7 @@ class BaseRepositoryTest extends TestCase
         // remove specific criteria, see if it is not applied
         $this->repository->removeCriteria('TemporaryCriteria');
         $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty after removing Criteria");
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
             $this->repository->query()->toSql(),
             "Query SQL should be totally basic after removing Criteria"
@@ -377,7 +377,7 @@ class BaseRepositoryTest extends TestCase
         });
         $this->repository->pushCriteriaOnce($criteria);
         $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty with only once Criteria pushed");
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
             "Query SQL should be altered by pushing Criteria once"
