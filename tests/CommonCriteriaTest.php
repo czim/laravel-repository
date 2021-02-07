@@ -69,7 +69,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function field_is_value_criteria_works()
+    public function field_is_value_criteria_works()
     {
         $this->repository->pushCriteria(new FieldIsValue('name', 'special name'));
 
@@ -79,7 +79,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function has_criteria_works()
+    public function has_criteria_works()
     {
         $this->repository->pushCriteria(new Has('translations', '>', 1));
 
@@ -95,7 +95,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function is_active_criteria_works()
+    public function is_active_criteria_works()
     {
         $this->repository->pushCriteria(new IsActive('active'));
 
@@ -105,7 +105,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function order_by_criteria_works()
+    public function order_by_criteria_works()
     {
         $this->repository->pushCriteria(new OrderBy('position', 'desc'));
 
@@ -115,7 +115,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function scope_criteria_works()
+    public function scope_criteria_works()
     {
         $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::SCOPE);
 
@@ -129,7 +129,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function scopes_criteria_works()
+    public function scopes_criteria_works()
     {
         $this->repository->pushCriteria(new Scopes([
             'testing',
@@ -149,7 +149,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function where_has_criteria_works()
+    public function where_has_criteria_works()
     {
         $this->repository->pushCriteria(new WhereHas('translations', function($query) {
             return $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla');
@@ -163,7 +163,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function with_relations_criteria_works()
+   public function with_relations_criteria_works()
     {
         $this->assertEmpty(
             $this->repository->findBy(self::UNIQUE_FIELD, '1337')->getRelations(),
@@ -181,7 +181,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    function take_criteria_works()
+    public function take_criteria_works()
     {
         $this->repository->pushCriteria(new Take(2));
 

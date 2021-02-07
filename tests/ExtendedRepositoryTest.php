@@ -61,7 +61,7 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_does_not_retrieve_inactive_files_and_uses_cache_by_default()
+    public function it_does_not_retrieve_inactive_files_and_uses_cache_by_default()
     {
         $this->assertTrue($this->repository->isCacheEnabled(), "Cache marked disabled");
         $this->assertFalse($this->repository->isInactiveIncluded(), "Inactive marked as included");
@@ -87,7 +87,7 @@ class ExtendedRepositoryTest extends TestCase
      * @test
      * @depends it_does_not_retrieve_inactive_files_and_uses_cache_by_default
      */
-    function it_retrieves_inactive_files_and_does_not_cache_in_maintenance_mode()
+    public function it_retrieves_inactive_files_and_does_not_cache_in_maintenance_mode()
     {
         $this->repository->maintenance();
 
@@ -113,7 +113,7 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries()
+    public function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries()
     {
         // add a scope that will limit the result to 1 record
         // the Supplier model has a test-scope especially for this
@@ -152,7 +152,7 @@ class ExtendedRepositoryTest extends TestCase
      * @test
      * @depends it_uses_default_criteria_when_not_configured_not_to
      */
-    function it_reapplies_criteria_only_when_changes_to_criteria_are_made()
+    public function it_reapplies_criteria_only_when_changes_to_criteria_are_made()
     {
         // the idea is that a repository efficiently applies criteria,
         // leaving a query state behind that it can re-use without rebuilding
@@ -210,7 +210,7 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_updates_the_active_state_of_a_record()
+    public function it_updates_the_active_state_of_a_record()
     {
         $this->repository->maintenance();
 
