@@ -61,7 +61,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_handles_basic_retrieval_operations()
+    public function it_handles_basic_retrieval_operations()
     {
         // all
         $result = $this->repository->all();
@@ -99,7 +99,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_creates_a_new_instance_and_fills_attributes_with_data()
+    public function it_creates_a_new_instance_and_fills_attributes_with_data()
     {
         $attributes = [
             self::UNIQUE_FIELD => 'unique_field_value',
@@ -118,7 +118,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_when_findorfail_does_not_find_anything()
+    public function it_throws_an_exception_when_findorfail_does_not_find_anything()
     {
         $this->expectException(ModelNotFoundException::class);
 
@@ -128,7 +128,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_throws_an_exception_when_firstorfail_does_not_find_anything()
+    public function it_throws_an_exception_when_firstorfail_does_not_find_anything()
     {
         $this->expectException(ModelNotFoundException::class);
 
@@ -145,7 +145,7 @@ class BaseRepositoryTest extends TestCase
      * Bosnadev's findWhere() method
      * @test
      */
-    function it_can_perform_a_findwhere_with_custom_parameters()
+    public function it_can_perform_a_findwhere_with_custom_parameters()
     {
         // simple field/value combo's by key
         $this->assertCount(
@@ -190,7 +190,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries()
+    public function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries()
     {
         // allCallback
         $result = $this->repository->allCallback( function($query) {
@@ -209,7 +209,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect()
+    public function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect()
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -227,7 +227,7 @@ class BaseRepositoryTest extends TestCase
      * @test
      * @depends it_handles_basic_retrieval_operations
      */
-    function it_handles_basic_manipulation_operations()
+    public function it_handles_basic_manipulation_operations()
     {
         // update existing
         $someId = $this->repository->findBy(self::UNIQUE_FIELD, '999')->id;
@@ -255,7 +255,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_fills_a_retrieved_model_attributes_without_persisting_it()
+    public function it_fills_a_retrieved_model_attributes_without_persisting_it()
     {
         $persistedModel = $this->repository->all()->first();
 
@@ -278,7 +278,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_returns_and_can_restore_default_criteria()
+    public function it_returns_and_can_restore_default_criteria()
     {
         $this->assertTrue($this->repository->defaultCriteria()->isEmpty(), "Defaultcriteria is not empty");
 
@@ -293,7 +293,7 @@ class BaseRepositoryTest extends TestCase
      * @test
      * @depends it_handles_basic_retrieval_operations
      */
-    function it_takes_criteria_and_handles_basic_criteria_manipulation()
+    public function it_takes_criteria_and_handles_basic_criteria_manipulation()
     {
         // clear all criteria, see if none are applied
         $this->repository->clearCriteria();

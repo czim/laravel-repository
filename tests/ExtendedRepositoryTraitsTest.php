@@ -67,7 +67,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
     /**
      * @test
      */
-    function it_finds_records_by_translated_attribute_value()
+    public function it_finds_records_by_translated_attribute_value()
     {
         // finds by translation exact
         $this->assertInstanceOf(
@@ -111,7 +111,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
     /**
      * @test
      */
-    function it_creates_new_records_with_position_handled_by_listify()
+    public function it_creates_new_records_with_position_handled_by_listify()
     {
         // the Supplier model must have Listify set for this
         $this->repository->maintenance();
@@ -133,7 +133,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
      * @todo rewrite this so that it uses listify method instead
      * @todo and add other useful listify methods?
      */
-    function it_updates_the_list_position_of_a_record()
+    public function it_updates_the_list_position_of_a_record()
     {
         $this->repository->maintenance();
 
