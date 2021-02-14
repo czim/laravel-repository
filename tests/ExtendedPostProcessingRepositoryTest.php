@@ -62,7 +62,7 @@ class ExtendedPostProcessingRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_can_hide_and_unhide_attributes_through_postprocessing()
+    public function it_can_hide_and_unhide_attributes_through_postprocessing()
     {
         $this->repository->maintenance();
 
@@ -120,7 +120,7 @@ class ExtendedPostProcessingRepositoryTest extends TestCase
     /**
      * @test
      */
-    function it_takes_postprocessors_and_handles_basic_postprocessor_manipulation()
+    public function it_takes_postprocessors_and_handles_basic_postprocessor_manipulation()
     {
         $this->repository->maintenance();
 
