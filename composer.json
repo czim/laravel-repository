@@ -45,6 +45,13 @@
     "scripts": {
         "test": "phpunit"
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Czim\\Repository\\RepositoryServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
