@@ -14,23 +14,23 @@
     "authors": [
         {
             "name": "Coen Zimmerman",
-            "email": "coen@pxlwidgets.com",
-            "homepage": "http://www.pixelindustries.com",
+            "email": "coen.zimmerman@endeavour.nl",
+            "homepage": "https://endeavour.nl",
             "role": "Developer"
         }
     ],
     "require": {
-        "php" : "^7.2|^8.0",
-        "illuminate/support": "^6.0|^7.0|^8.0",
-        "illuminate/database": "^6.0|^7.0|^8.0",
+        "php" : "^8.0",
+        "illuminate/support": "^9.0",
+        "illuminate/database": "^9.0",
         "myclabs/php-enum": "^1.7"
     },
     "require-dev": {
-        "phpunit/phpunit" : "^8.0|^9.0",
-        "orchestra/testbench": "^6.7.0",
-        "watson/rememberable": "^5.0.1",
-        "astrotomic/laravel-translatable": "^11.8",
-        "czim/laravel-listify": "^1.1|^2.0"
+        "phpunit/phpunit" : "^9.5",
+        "orchestra/testbench": "^7.5",
+        "watson/rememberable": "^6.0",
+        "astrotomic/laravel-translatable": "^11.10",
+        "czim/laravel-listify": "^2.0"
     },
     "autoload": {
         "psr-4": {
