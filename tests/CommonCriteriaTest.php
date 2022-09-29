@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test;
 
 use Czim\Repository\Contracts\BaseRepositoryInterface;
-use Czim\Repository\Contracts\ExtendedRepositoryInterface;
 use Czim\Repository\Criteria\Common\FieldIsValue;
 use Czim\Repository\Criteria\Common\Has;
 use Czim\Repository\Criteria\Common\IsActive;
@@ -17,14 +19,11 @@ use Czim\Repository\Test\Helpers\TestExtendedModel;
 
 class CommonCriteriaTest extends TestCase
 {
-    const TABLE_NAME   = 'test_simple_models';
-    const UNIQUE_FIELD = 'unique_field';
-    const SECOND_FIELD = 'second_field';
+    protected const TABLE_NAME   = 'test_simple_models';
+    protected const UNIQUE_FIELD = 'unique_field';
+    protected const SECOND_FIELD = 'second_field';
 
-    /**
-     * @var BaseRepositoryInterface|ExtendedRepositoryInterface
-     */
-    protected $repository;
+    protected ?BaseRepositoryInterface $repository = null;
 
 
     public function setUp(): void
@@ -36,7 +35,7 @@ class CommonCriteriaTest extends TestCase
         $this->repository->maintenance();
     }
 
-    protected function seedDatabase()
+    protected function seedDatabase(): void
     {
         TestExtendedModel::create([
             'unique_field' => '999',
@@ -69,7 +68,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function field_is_value_criteria_works()
+    public function field_is_value_criteria_works(): void
     {
         $this->repository->pushCriteria(new FieldIsValue('name', 'special name'));
 
@@ -79,7 +78,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function has_criteria_works()
+    public function has_criteria_works(): void
     {
         $this->repository->pushCriteria(new Has('translations', '>', 1));
 
@@ -95,7 +94,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function is_active_criteria_works()
+    public function is_active_criteria_works(): void
     {
         $this->repository->pushCriteria(new IsActive('active'));
 
@@ -105,17 +104,17 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function order_by_criteria_works()
+    public function order_by_criteria_works(): void
     {
         $this->repository->pushCriteria(new OrderBy('position', 'desc'));
 
-        $this->assertEquals([3, 2, 1], $this->repository->lists('position'), "OrderBy Criteria doesn't work");
+        $this->assertEquals([3, 2, 1], $this->repository->pluck('position')->all(), "OrderBy Criteria doesn't work");
     }
 
     /**
      * @test
      */
-    public function scope_criteria_works()
+    public function scope_criteria_works(): void
     {
         $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::SCOPE);
 
@@ -129,7 +128,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function scopes_criteria_works()
+    public function scopes_criteria_works(): void
     {
         $this->repository->pushCriteria(new Scopes([
             'testing',
@@ -149,7 +148,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function where_has_criteria_works()
+    public function where_has_criteria_works(): void
     {
         $this->repository->pushCriteria(new WhereHas('translations', function($query) {
             return $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla');
@@ -163,7 +162,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-   public function with_relations_criteria_works()
+   public function with_relations_criteria_works(): void
     {
         $this->assertEmpty(
             $this->repository->findBy(self::UNIQUE_FIELD, '1337')->getRelations(),
@@ -181,7 +180,7 @@ class CommonCriteriaTest extends TestCase
     /**
      * @test
      */
-    public function take_criteria_works()
+    public function take_criteria_works(): void
     {
         $this->repository->pushCriteria(new Take(2));
 

@@ -1,40 +1,28 @@
 <?php
+
 namespace Czim\Repository\Contracts;
 
 interface ExtendedRepositoryInterface
 {
     /**
-     * Refreshes named criteria, so that they reflect the current repository settings
-     * (for instance for updating the Active check, when includeActive has changed)
+     * Refreshes named criteria, so that they reflect the current repository settings.
+     *
+     * (For instance for updating the Active check, when includeActive has changed)
      * This also makes sure the named criteria exist at all, if they are required and were never added.
-     *
-     * @return $this
      */
-    public function refreshSettingDependentCriteria();
+    public function refreshSettingDependentCriteria(): void;
 
     /**
-     * Adds a scope to enforce, overwrites with new parameters if it already exists
+     * Adds a scope to enforce, overwrites with new parameters if it already exists.
      *
-     * @param  string $scope
-     * @param  array  $parameters
-     * @return self
+     * @param string                   $scope
+     * @param array<int|string, mixed> $parameters
      */
-    public function addScope($scope, $parameters = []);
+    public function addScope(string $scope, array $parameters = []): void;
 
-    /**
-     * Adds a scope to enforce
-     *
-     * @param  string $scope
-     * @return self
-     */
-    public function removeScope($scope);
+    public function removeScope(string $scope): void;
 
-    /**
-     * Clears any currently set scopes
-     *
-     * @return self
-     */
-    public function clearScopes();
+    public function clearScopes(): void;
 
     /**
      * Enables maintenance mode, ignoring standard limitations on model availability
@@ -42,50 +30,44 @@ interface ExtendedRepositoryInterface
      * @param bool $enable
      * @return $this
      */
-    public function maintenance($enable = true);
+    public function maintenance(bool $enable = true): static;
 
     /**
      * Prepares repository to include inactive entries
      * (entries with the $this->activeColumn set to false)
      *
      * @param bool $enable
-     * @return $this
      */
-    public function includeInactive($enable = true);
+    public function includeInactive(bool $enable = true): void;
 
     /**
-     * Prepares repository to exclude inactive entries
-     *
-     * @return $this
+     * Prepares repository to exclude inactive entries.
      */
-    public function excludeInactive();
+    public function excludeInactive(): void;
 
     /**
-     * Enables using the cache for retrieval
+     * Enables using the cache for retrieval.
      *
      * @param bool $enable
-     * @return $this
      */
-    public function enableCache($enable = true);
+    public function enableCache(bool $enable = true): void;
 
     /**
-     * Disables using the cache for retrieval
-     *
-     * @return $this
+     * Disables using the cache for retrieval.
      */
-    public function disableCache();
+    public function disableCache(): void;
 
     /**
-     * Returns whether inactive records are included
+     * Returns whether inactive records are included.
      *
      * @return bool
      */
-    public function isInactiveIncluded();
+    public function isInactiveIncluded(): bool;
 
     /**
-     * Returns whether cache is currently active
+     * Returns whether cache is currently active.
      *
      * @return bool
      */
-    public function isCacheEnabled();
+    public function isCacheEnabled(): bool;
 }

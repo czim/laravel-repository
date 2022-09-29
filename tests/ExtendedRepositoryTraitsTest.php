@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test;
 
 use Czim\Repository\ExtendedRepository;
@@ -6,15 +9,12 @@ use Czim\Repository\Test\Helpers\TestExtendedModel;
 
 class ExtendedRepositoryTraitsTest extends TestCase
 {
-    const TABLE_NAME       = 'test_extended_models';
-    const UNIQUE_FIELD     = 'unique_field';
-    const SECOND_FIELD     = 'second_field';
-    const TRANSLATED_FIELD = 'translated_string';
+    protected const TABLE_NAME       = 'test_extended_models';
+    protected const UNIQUE_FIELD     = 'unique_field';
+    protected const SECOND_FIELD     = 'second_field';
+    protected const TRANSLATED_FIELD = 'translated_string';
 
-    /**
-     * @var ExtendedRepository
-     */
-    protected $repository;
+    protected ?ExtendedRepository $repository = null;
 
 
     public function setUp(): void
@@ -24,11 +24,8 @@ class ExtendedRepositoryTraitsTest extends TestCase
         $this->repository = $this->app->make(Helpers\TestExtendedRepository::class);
     }
 
-    protected function seedDatabase()
+    protected function seedDatabase(): void
     {
-        // testing table is in memory, no need to truncate
-        //$this->app->make('db')->table(static::TABLE_NAME)->delete();
-
         TestExtendedModel::create([
             'unique_field' => '999',
             'second_field' => null,
@@ -67,7 +64,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
     /**
      * @test
      */
-    public function it_finds_records_by_translated_attribute_value()
+    public function it_finds_records_by_translated_attribute_value(): void
     {
         // finds by translation exact
         $this->assertInstanceOf(
@@ -111,7 +108,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_new_records_with_position_handled_by_listify()
+    public function it_creates_new_records_with_position_handled_by_listify(): void
     {
         // the Supplier model must have Listify set for this
         $this->repository->maintenance();
@@ -133,7 +130,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
      * @todo rewrite this so that it uses listify method instead
      * @todo and add other useful listify methods?
      */
-    public function it_updates_the_list_position_of_a_record()
+    public function it_updates_the_list_position_of_a_record(): void
     {
         $this->repository->maintenance();
 

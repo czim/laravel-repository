@@ -1,17 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test\Helpers;
 
 use Astrotomic\Translatable\Translatable;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Czim\Listify\Listify;
+use Illuminate\Database\Query\Builder as BaseBuilder;
 use Watson\Rememberable\Rememberable;
 
 class TestExtendedModel extends Model
 {
-    use Translatable,
-        Rememberable,
-        Listify;
+    use Translatable;
+    use Rememberable;
+    use Listify;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'unique_field',
         'second_field',
@@ -21,27 +29,46 @@ class TestExtendedModel extends Model
         'hidden',
     ];
 
-    // for testing with hide/unhide attributes
+    /**
+     * For testing with hide/unhide attributes.
+     *
+     * @var string[]
+     */
     protected $hidden = [
         'hidden',
     ];
 
+    /**
+     * @var array<string, string>
+     */
     protected $casts = [
         'position' => 'integer',
         'active'   => 'boolean',
     ];
 
-    protected $translatedAttributes = [
+    /**
+     * @var string[]
+     */
+    protected array $translatedAttributes = [
         'translated_string',
     ];
 
-    // for testing with scopes
-    public function scopeTesting($query)
+    /**
+     * @param Model|EloquentBuilder|BaseBuilder $query
+     * @return EloquentBuilder|BaseBuilder
+     */
+    public function scopeTesting($query): EloquentBuilder|BaseBuilder
     {
         return $query->whereNotNull('second_field');
     }
 
-    public function scopeMoreTesting($query, $field, $value)
+    /**
+     * @param Model|EloquentBuilder|BaseBuilder $query
+     * @param string                            $field
+     * @param mixed                             $value
+     * @return EloquentBuilder|BaseBuilder
+     */
+    public function scopeMoreTesting($query, string $field, mixed $value): EloquentBuilder|BaseBuilder
     {
         return $query->where($field, $value);
     }

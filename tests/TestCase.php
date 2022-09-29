@@ -1,31 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test;
 
 use Closure;
 use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Test\Helpers\TranslatableConfig;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
+use Mockery\MockInterface;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-    const TABLE_NAME_SIMPLE                = 'test_simple_models';
-    const TABLE_NAME_EXTENDED              = 'test_extended_models';
-    const TABLE_NAME_EXTENDED_TRANSLATIONS = 'test_extended_model_translations';
+    protected const TABLE_NAME_SIMPLE                = 'test_simple_models';
+    protected const TABLE_NAME_EXTENDED              = 'test_extended_models';
+    protected const TABLE_NAME_EXTENDED_TRANSLATIONS = 'test_extended_model_translations';
+
+    protected ?DatabaseManager $db = null;
 
     /**
-     * @var DatabaseManager
+     * @param Application $app
      */
-    protected $db;
-
-    /**
-     * Define environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
         parent::getEnvironmentSetUp($app);
 
@@ -52,8 +51,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->seedDatabase();
     }
 
-
-    protected function migrateDatabase()
+    protected function migrateDatabase(): void
     {
         // model we can test anything but translations with
         Schema::create(self::TABLE_NAME_SIMPLE, function ($table) {
@@ -88,7 +86,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     }
 
-    abstract protected function seedDatabase();
+    abstract protected function seedDatabase(): void;
 
 
     /**
@@ -96,19 +94,18 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      * If no callback is given, it will simply return the model/query unaltered
      * (and have no effect).
      *
-     * @param null|string $expects
-     * @param string      $name
-     * @param Closure     $callback the callback for the apply() method on the Criteria
-     * @return Mockery\Mock|Mockery\MockInterface|CriteriaInterface
+     * @param int|string|null $expects
+     * @param Closure|null    $callback the callback for the apply() method on the Criteria
+     * @return CriteriaInterface&MockInterface
      */
-    protected function makeMockCriteria($expects = null, $name = 'MockCriteria', Closure $callback = null)
-    {
+    protected function makeMockCriteria(
+        string|int|null $expects = null,
+        Closure $callback = null
+    ): MockInterface {
         $mock = Mockery::mock(CriteriaInterface::class);
 
         if ($callback === null) {
-            $callback = function ($model) {
-                return $model;
-            };
+            $callback = fn ($model) => $model;
         }
 
         if ( ! $expects) {
@@ -126,8 +123,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 ->andReturnUsing($callback);
         }
 
-
         return $mock;
     }
-
 }

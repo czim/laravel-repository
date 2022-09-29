@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test;
 
 use Czim\Repository\Contracts\BaseRepositoryInterface;
@@ -9,14 +12,11 @@ use Illuminate\Support\Collection;
 
 class BaseRepositoryTest extends TestCase
 {
-    const TABLE_NAME   = 'test_simple_models';
-    const UNIQUE_FIELD = 'unique_field';
-    const SECOND_FIELD = 'second_field';
+    protected const TABLE_NAME   = 'test_simple_models';
+    protected const UNIQUE_FIELD = 'unique_field';
+    protected const SECOND_FIELD = 'second_field';
 
-    /**
-     * @var BaseRepositoryInterface
-     */
-    protected $repository;
+    protected ?BaseRepositoryInterface $repository = null;
 
 
     public function setUp(): void
@@ -26,11 +26,8 @@ class BaseRepositoryTest extends TestCase
         $this->repository = $this->app->make(Helpers\TestBaseRepository::class);
     }
 
-    protected function seedDatabase()
+    protected function seedDatabase(): void
     {
-        // testing table is in memory, no need to truncate
-        //$this->app->make('db')->table(static::TABLE_NAME)->delete();
-
         TestSimpleModel::create([
             'unique_field' => '999',
             'second_field' => null,
@@ -61,7 +58,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_handles_basic_retrieval_operations()
+    public function it_handles_basic_retrieval_operations(): void
     {
         // all
         $result = $this->repository->all();
@@ -90,8 +87,8 @@ class BaseRepositoryTest extends TestCase
         // paginate
         $this->assertCount(2, $this->repository->paginate(2), "Did not get correct count for paginate()");
 
-        // lists
-        $list = $this->repository->lists(self::UNIQUE_FIELD);
+        // pluck
+        $list = $this->repository->pluck(self::UNIQUE_FIELD);
         $this->assertCount(3, $list, "Did not get correct array count for lists()");
         $this->assertContains('1337', $list, "Did not get correct array content for lists()");
     }
@@ -99,7 +96,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_a_new_instance_and_fills_attributes_with_data()
+    public function it_creates_a_new_instance_and_fills_attributes_with_data(): void
     {
         $attributes = [
             self::UNIQUE_FIELD => 'unique_field_value',
@@ -118,7 +115,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_an_exception_when_findorfail_does_not_find_anything()
+    public function it_throws_an_exception_when_findorfail_does_not_find_anything(): void
     {
         $this->expectException(ModelNotFoundException::class);
 
@@ -128,14 +125,15 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_an_exception_when_firstorfail_does_not_find_anything()
+    public function it_throws_an_exception_when_firstorfail_does_not_find_anything(): void
     {
         $this->expectException(ModelNotFoundException::class);
 
         // make sure we won't find anything
-        $mockCriteria = $this->makeMockCriteria('once', 'MockCriteria', function($query) {
-            return $query->where('name', 'some name that certainly does not exist');
-        });
+        $mockCriteria = $this->makeMockCriteria(
+            'once',
+            fn ($query) => $query->where('name', 'some name that certainly does not exist')
+        );
         $this->repository->pushCriteria($mockCriteria);
 
         $this->repository->firstOrFail();
@@ -145,7 +143,7 @@ class BaseRepositoryTest extends TestCase
      * Bosnadev's findWhere() method
      * @test
      */
-    public function it_can_perform_a_findwhere_with_custom_parameters()
+    public function it_can_perform_a_findwhere_with_custom_parameters(): void
     {
         // simple field/value combo's by key
         $this->assertCount(
@@ -190,7 +188,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries()
+    public function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries(): void
     {
         // allCallback
         $result = $this->repository->allCallback( function($query) {
@@ -209,7 +207,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect()
+    public function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -227,7 +225,7 @@ class BaseRepositoryTest extends TestCase
      * @test
      * @depends it_handles_basic_retrieval_operations
      */
-    public function it_handles_basic_manipulation_operations()
+    public function it_handles_basic_manipulation_operations(): void
     {
         // update existing
         $someId = $this->repository->findBy(self::UNIQUE_FIELD, '999')->id;
@@ -255,7 +253,7 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_fills_a_retrieved_model_attributes_without_persisting_it()
+    public function it_fills_a_retrieved_model_attributes_without_persisting_it(): void
     {
         $persistedModel = $this->repository->all()->first();
 
@@ -278,11 +276,11 @@ class BaseRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_returns_and_can_restore_default_criteria()
+    public function it_returns_and_can_restore_default_criteria(): void
     {
         $this->assertTrue($this->repository->defaultCriteria()->isEmpty(), "Defaultcriteria is not empty");
 
-        $this->repository->pushCriteria($this->makeMockCriteria('never', 'MockCriteria'));
+        $this->repository->pushCriteria($this->makeMockCriteria('never'));
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
 
         $this->repository->restoreDefaultCriteria();
@@ -293,7 +291,7 @@ class BaseRepositoryTest extends TestCase
      * @test
      * @depends it_handles_basic_retrieval_operations
      */
-    public function it_takes_criteria_and_handles_basic_criteria_manipulation()
+    public function it_takes_criteria_and_handles_basic_criteria_manipulation(): void
     {
         // clear all criteria, see if none are applied
         $this->repository->clearCriteria();
@@ -306,9 +304,7 @@ class BaseRepositoryTest extends TestCase
 
 
         // add new criteria, see if it is applied
-        $criteria = $this->makeMockCriteria('twice', 'MockCriteria', function ($query) {
-            return $query->where(self::UNIQUE_FIELD, '1337');
-        });
+        $criteria = $this->makeMockCriteria('twice', fn ($query) => $query->where(self::UNIQUE_FIELD, '1337'));
         $this->repository->pushCriteria($criteria, 'TemporaryCriteria');
         $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
 
@@ -320,11 +316,13 @@ class BaseRepositoryTest extends TestCase
 
         // set repository to ignore criteria, see if they do not get applied
         $this->repository->ignoreCriteria();
+
         $this->assertDoesNotMatchRegularExpression(
             "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
             $this->repository->query()->toSql(),
             "Query SQL should be altered by pushing Criteria"
         );
+
         $this->repository->ignoreCriteria(false);
 
 
@@ -344,9 +342,7 @@ class BaseRepositoryTest extends TestCase
 
 
         // override criteria once, see if it is overridden succesfully and not called
-        $secondCriteria = $this->makeMockCriteria('once', 'SecondCriteria', function($query) {
-            return $query->where(self::SECOND_FIELD, '12345');
-        });
+        $secondCriteria = $this->makeMockCriteria('once', fn ($query) => $query->where(self::SECOND_FIELD, '12345'));
         $this->repository->pushCriteriaOnce($secondCriteria, 'TemporaryCriteria');
         $sql = $this->repository->query()->toSql();
         $this->assertDoesNotMatchRegularExpression(
@@ -372,9 +368,7 @@ class BaseRepositoryTest extends TestCase
 
 
         // override criteria once, see if it is changed
-        $criteria = $this->makeMockCriteria('once', 'MockCriteria', function($query) {
-            return $query->where(self::UNIQUE_FIELD, '1337');
-        });
+        $criteria = $this->makeMockCriteria('once', fn ($query) => $query->where(self::UNIQUE_FIELD, '1337'));
         $this->repository->pushCriteriaOnce($criteria);
         $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty with only once Criteria pushed");
         $this->assertMatchesRegularExpression(

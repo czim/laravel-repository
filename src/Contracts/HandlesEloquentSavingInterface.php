@@ -1,8 +1,8 @@
 <?php
 
 namespace Czim\Repository\Contracts;
-use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * The point of this is to provide Eloquent saving through some
@@ -12,11 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 interface HandlesEloquentSavingInterface
 {
     /**
-     * Executes a save on the model provided
-     *
-     * @param  Model $model
-     * @param  array $options
+     * @param Model                $model
+     * @param array<string, mixed> $options
      * @return bool
      */
-    public function save(Model $model, array $options = array());
+    public function save(Model $model, array $options = []): bool;
 }

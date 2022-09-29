@@ -1,43 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 /**
- * Applies a SINGLE scope
+ * Applies a SINGLE scope.
  */
 class Scope extends AbstractCriteria
 {
-
     /**
-     * @var string
+     * @param string  $scope
+     * @param mixed[] $parameters
      */
-    protected $scope;
-
-    /**
-     * @var array
-     */
-    protected $parameters;
-
-
-    /**
-     * @param string $scope
-     * @param array  $parameters
-     */
-    public function __construct($scope, array $parameters = [])
-    {
-        $this->scope      = $scope;
-        $this->parameters = $parameters;
+    public function __construct(
+        protected string $scope,
+        protected array $parameters = [],
+    ) {
     }
 
-    /**
-     * @param $model
-     * @return mixed
-     */
-    protected function applyToQuery($model)
-    {
-        $model = call_user_func_array([ $model, $this->scope ], $this->parameters);
-
-        return $model;
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
+        return call_user_func_array(
+            [$model, $this->scope],
+            $this->parameters
+        );
     }
 }

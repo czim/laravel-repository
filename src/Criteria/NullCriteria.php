@@ -1,7 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria;
 
-use Czim\Repository\Criteria\AbstractCriteria;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 /**
  * This majestically does nothing.
@@ -10,13 +16,9 @@ use Czim\Repository\Criteria\AbstractCriteria;
  */
 class NullCriteria extends AbstractCriteria
 {
-
-    /**
-     * @param $model
-     * @return mixed
-     */
-    protected function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model;
     }
 }

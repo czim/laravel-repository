@@ -1,75 +1,68 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Repository;
 
+use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Contracts\ExtendedRepositoryInterface;
-use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
 use Czim\Repository\Enums\CriteriaKey;
+use Psr\Container\ContainerInterface;
 
-/**
- * Extends BaseRepository with extra functionality:
- *
- *      - setting default criteria to apply
- *      - active record filtering
- *      - caching (requires Rememberable or custom caching Criteria)
- *      - scopes
- */
 abstract class ExtendedRepository extends BaseRepository implements ExtendedRepositoryInterface
 {
     /**
-     * Override if model has a basic 'active' field
+     * Override if model has a basic 'active' field.
      *
      * @var bool
      */
-    protected $hasActive = false;
+    protected bool $hasActive = false;
 
     /**
      * The column to check for if hasActive is true
      *
      * @var string
      */
-    protected $activeColumn = 'active';
+    protected string $activeColumn = 'active';
 
     /**
      * Setting: enables (remember) cache
      *
      * @var bool
      */
-    protected $enableCache = false;
+    protected bool $enableCache = false;
 
     /**
      * Setting: disables the active=1 check (if hasActive is true for repo)
      *
      * @var bool
      */
-    protected $includeInactive = false;
+    protected bool $includeInactive = false;
 
     /**
-     * Scopes to apply to queries
+     * Scopes to apply to queries.
      * Must be supported by model used!
      *
-     * @var array
+     * @var string[]
      */
-    protected $scopes = [];
+    protected array $scopes = [];
 
     /**
      * Parameters for a given scope.
      * Note that you can only use each scope once, since parameters will be set by scope name as key.
      *
-     * @var array
+     * @var array<int|string, mixed>
      */
-    protected $scopeParameters = [];
-
+    protected array $scopeParameters = [];
 
 
     /**
-     * @param Container  $app
-     * @param Collection $collection
+     * {@inheritDoc}
      */
-    public function __construct(Container $app, Collection $collection)
+    public function __construct(ContainerInterface $container, Collection $initialCriteria)
     {
-        parent::__construct($app, $collection);
+        parent::__construct($container, $initialCriteria);
 
         $this->refreshSettingDependentCriteria();
     }
@@ -84,30 +77,24 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      * the default collection.
      *
      * Override to also refresh the default criteria for extended functionality.
-     *
-     * @return $this
      */
-    public function restoreDefaultCriteria()
+    public function restoreDefaultCriteria(): void
     {
         parent::restoreDefaultCriteria();
 
         $this->refreshSettingDependentCriteria();
-
-        return $this;
     }
 
     /**
      * Refreshes named criteria, so that they reflect the current repository settings
      * (for instance for updating the Active check, when includeActive has changed)
      * This also makes sure the named criteria exist at all, if they are required and were never added.
-     *
-     * @return $this
      */
-    public function refreshSettingDependentCriteria()
+    public function refreshSettingDependentCriteria(): void
     {
         if ($this->hasActive) {
-            if ( ! $this->includeInactive) {
-                $this->criteria->put(CriteriaKey::ACTIVE, new Criteria\Common\IsActive( $this->activeColumn ));
+            if (! $this->includeInactive) {
+                $this->criteria->put(CriteriaKey::ACTIVE, new Criteria\Common\IsActive($this->activeColumn));
             } else {
                 $this->criteria->forget(CriteriaKey::ACTIVE);
             }
@@ -119,36 +106,11 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
             $this->criteria->forget(CriteriaKey::CACHE);
         }
 
-        if ( ! empty($this->scopes)) {
+        if (! empty($this->scopes)) {
             $this->criteria->put(CriteriaKey::SCOPE, $this->getScopesCriteriaInstance());
         } else {
             $this->criteria->forget(CriteriaKey::SCOPE);
         }
-
-        return $this;
-    }
-
-    /**
-     * Returns Criteria to use for caching. Override to replace with something other
-     * than Rememberable (which is used by the default Common\UseCache Criteria);
-     *
-     * @return Criteria\Common\UseCache
-     */
-    protected function getCacheCriteriaInstance()
-    {
-        return new Criteria\Common\UseCache();
-    }
-
-
-    /**
-     * Returns Criteria to use for applying scopes. Override to replace with something
-     * other the default Common\Scopes Criteria.
-     *
-     * @return Criteria\Common\Scopes
-     */
-    protected function getScopesCriteriaInstance()
-    {
-        return new Criteria\Common\Scopes( $this->convertScopesToCriteriaArray() );
     }
 
 
@@ -157,78 +119,38 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     // -------------------------------------------------------------------------
 
     /**
-     * Adds a scope to enforce, overwrites with new parameters if it already exists
+     * Adds a scope to enforce, overwrites with new parameters if it already exists.
      *
-     * @param  string $scope
-     * @param  array  $parameters
-     * @return self
+     * @param string                   $scope
+     * @param array<int|string, mixed> $parameters
      */
-    public function addScope($scope, $parameters = [])
+    public function addScope(string $scope, array $parameters = []): void
     {
-        if ( ! in_array($scope, $this->scopes)) {
-
+        if (! in_array($scope, $this->scopes)) {
             $this->scopes[] = $scope;
         }
 
         $this->scopeParameters[ $scope ] = $parameters;
 
         $this->refreshSettingDependentCriteria();
-        return $this;
     }
 
-    /**
-     * Adds a scope to enforce
-     *
-     * @param  string $scope
-     * @return self
-     */
-    public function removeScope($scope)
+    public function removeScope(string $scope): void
     {
-        $this->scopes = array_diff($this->scopes, [ $scope ]);
+        $this->scopes = array_diff($this->scopes, [$scope]);
 
         unset($this->scopeParameters[ $scope ]);
 
         $this->refreshSettingDependentCriteria();
-        return $this;
     }
 
-    /**
-     * Clears any currently set scopes
-     *
-     * @return self
-     */
-    public function clearScopes()
+    public function clearScopes(): void
     {
         $this->scopes          = [];
         $this->scopeParameters = [];
 
         $this->refreshSettingDependentCriteria();
-        return $this;
     }
-
-    /**
-     * Converts the tracked scopes to an array that the Scopes Common Criteria will eat.
-     *
-     * @return array
-     */
-    protected function convertScopesToCriteriaArray()
-    {
-        $scopes = [];
-
-        foreach ($this->scopes as $scope) {
-
-            if (array_key_exists($scope, $this->scopeParameters) && ! empty($this->scopeParameters[ $scope ])) {
-
-                $scopes[] = [ $scope, $this->scopeParameters[ $scope ] ];
-                continue;
-            }
-
-            $scopes[] = [ $scope, [] ];
-        }
-
-        return $scopes;
-    }
-
 
     // -------------------------------------------------------------------------
     //      Maintenance mode / settings
@@ -241,105 +163,113 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      * @param bool $enable
      * @return $this
      */
-    public function maintenance($enable = true)
+    public function maintenance(bool $enable = true): static
     {
-        return $this->includeInactive($enable)
-                    ->enableCache( ! $enable);
-    }
-
-    /**
-     * Prepares repository to include inactive entries
-     * (entries with the $this->activeColumn set to false)
-     *
-     * @param bool $enable
-     * @return $this
-     */
-    public function includeInactive($enable = true)
-    {
-        $this->includeInactive = (bool) $enable;
-
-        $this->refreshSettingDependentCriteria();
+        $this->includeInactive($enable);
+        $this->enableCache(! $enable);
 
         return $this;
     }
 
-    /**
-     * Prepares repository to exclude inactive entries
-     *
-     * @return $this
-     */
-    public function excludeInactive()
+    public function includeInactive(bool $enable = true): void
     {
-        return $this->includeInactive(false);
+        $this->includeInactive = $enable;
+
+        $this->refreshSettingDependentCriteria();
+    }
+
+    public function excludeInactive(): void
+    {
+        $this->includeInactive(false);
     }
 
     /**
-     * Returns whether inactive records are included
+     * Returns whether inactive records are included.
      *
      * @return bool
      */
-    public function isInactiveIncluded()
+    public function isInactiveIncluded(): bool
     {
         return $this->includeInactive;
     }
 
-    /**
-     * Enables using the cache for retrieval
-     *
-     * @param bool $enable
-     * @return $this
-     */
-    public function enableCache($enable = true)
+    public function enableCache(bool $enable = true): void
     {
-        $this->enableCache = (bool) $enable;
+        $this->enableCache = $enable;
 
         $this->refreshSettingDependentCriteria();
-
-        return $this;
     }
 
-    /**
-     * Disables using the cache for retrieval
-     *
-     * @return $this
-     */
-    public function disableCache()
+    public function disableCache(): void
     {
-        return $this->enableCache(false);
+        $this->enableCache(false);
     }
 
-    /**
-     * Returns whether cache is currently active
-     *
-     * @return bool
-     */
-    public function isCacheEnabled()
+    public function isCacheEnabled(): bool
     {
         return $this->enableCache;
     }
 
-
-    // -------------------------------------------------------------------------
-    //      Manipulation
-    // -------------------------------------------------------------------------
-
-    /**
-     * Update the active flag for a record
-     *
-     * @param int     $id
-     * @param bool $active
-     * @return bool
-     */
-    public function activateRecord($id, $active = true)
+    public function activateRecord(int|string $id, bool $active = true): bool
     {
-        if ( ! $this->hasActive) return false;
+        if (! $this->hasActive) {
+            return false;
+        }
 
-        $model = $this->makeModel(false);
+        $model = $this->find($id);
 
-        if ( ! ($model = $model->find($id))) return false;
+        if (! $model) {
+            return false;
+        }
 
         $model->{$this->activeColumn} = (bool) $active;
 
         return $model->save();
+    }
+
+
+    /**
+     * Converts the tracked scopes to an array that the Scopes Common Criteria will eat.
+     *
+     * @return array<int, array<string, mixed[]>>
+     */
+    protected function convertScopesToCriteriaArray(): array
+    {
+        $scopes = [];
+
+        foreach ($this->scopes as $scope) {
+            if (array_key_exists($scope, $this->scopeParameters) && ! empty($this->scopeParameters[ $scope ])) {
+                $scopes[] = [$scope, $this->scopeParameters[ $scope ]];
+                continue;
+            }
+
+            $scopes[] = [$scope, []];
+        }
+
+        return $scopes;
+    }
+
+    /**
+     * Returns Criteria to use for caching. Override to replace with something other
+     * than Rememberable (which is used by the default Common\UseCache Criteria);
+     *
+     * @return Criteria\Common\UseCache
+     */
+    protected function getCacheCriteriaInstance(): CriteriaInterface
+    {
+        return new Criteria\Common\UseCache();
+    }
+
+    /**
+     * Returns Criteria to use for applying scopes. Override to replace with something
+     * other the default Common\Scopes Criteria.
+     *
+     * @return Criteria\Common\Scopes
+     */
+    protected function getScopesCriteriaInstance(): CriteriaInterface
+    {
+        return new Criteria\Common\Scopes(
+            $this->convertScopesToCriteriaArray()
+        );
     }
 }

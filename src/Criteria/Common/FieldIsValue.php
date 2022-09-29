@@ -1,34 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class FieldIsValue extends AbstractCriteria
 {
-    /**
-     * @var string field to where for
-     */
-    protected $field;
-
-    /**
-     * @var mixed value to check for
-     */
-    protected $value;
-
-
-    public function __construct($field, $value = true)
-    {
-        $this->field = $field;
-        $this->value = $value;
+    public function __construct(
+        protected string $field,
+        protected mixed $value = true,
+    ) {
     }
 
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->where($this->field, $this->value);
     }
 }

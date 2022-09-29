@@ -1,33 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class IsActive extends AbstractCriteria
 {
-    /**
-     * @var string
-     */
-    protected $column;
-
-
-    /**
-     * The column name to check for 'active' state
-     *
-     * @param string $column
-     */
-    public function __construct($column = 'active')
+    public function __construct(protected string $column = 'active')
     {
-        $this->column = $column;
     }
 
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->where($this->column, true);
     }
 }

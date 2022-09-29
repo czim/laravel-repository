@@ -1,31 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
+use Closure;
 use Czim\Repository\Criteria\AbstractCriteria;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class Custom extends AbstractCriteria
 {
-    /**
-     * @var callable $query
-     */
-    protected $query;
-
-
-    public function __construct(callable $query)
+    public function __construct(protected Closure $query)
     {
-        $this->query = $query;
     }
 
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         $callable = $this->query;
 
         return $callable($model);
     }
-
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Czim\Repository;
 
 use Czim\Repository\Contracts\BaseRepositoryInterface;
@@ -7,14 +9,18 @@ use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Criteria\NullCriteria;
 use Czim\Repository\Exceptions\RepositoryException;
 use Closure;
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Query\Builder as DatabaseBuilder;
+use Illuminate\Database\Query\Builder as BaseBuilder;
 use Illuminate\Support\Collection;
-use Illuminate\Container\Container as App;
 use InvalidArgumentException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Basic repository for retrieving and manipulating Eloquent models.
@@ -25,71 +31,68 @@ use InvalidArgumentException;
  * ordering by a certain column, but in other cases, without reinstantiating, order
  * by other columns, by marking the Criteria that does the ordering with key 'order'.
  *
- * implements Contracts\RepositoryInterface, Contracts\RepositoryCriteriaInterface
+ * @template TModel of \Illuminate\Database\Eloquent\Model
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
-    /**
-     * @var App
-     */
-    protected $app;
+    protected ContainerInterface $app;
 
     /**
-     * @var Model|EloquentBuilder
+     * @var TModel|Model|EloquentBuilder|BaseBuilder
      */
-    protected $model;
+    protected Model|EloquentBuilder|BaseBuilder $modelOrQuery;
 
     /**
      * Criteria to keep and use for all coming queries
      *
-     * @var Collection|CriteriaInterface[]
+     * @var Collection<int|string, CriteriaInterface>
      */
-    protected $criteria;
+    protected Collection $criteria;
 
     /**
      * The Criteria to only apply to the next query
      *
-     * @var Collection|CriteriaInterface[]
+     * @var Collection<int|string, CriteriaInterface>
      */
-    protected $onceCriteria;
+    protected Collection $onceCriteria;
 
     /**
      * List of criteria that are currently active (updates when criteria are stripped)
      * So this is a dynamic list that can change during calls of various repository
      * methods that alter the active criteria.
      *
-     * @var array|CriteriaInterface[]
+     * @var Collection<int|string, CriteriaInterface>
      */
-    protected $activeCriteria = null;
+    protected Collection $activeCriteria;
 
     /**
-     * Whether to skip ALL criteria
+     * Whether to skip ALL criteria.
      *
      * @var bool
      */
-    protected $ignoreCriteria = false;
+    protected bool $ignoreCriteria = false;
 
     /**
      * Default number of paginated items
      *
-     * @var integer
+     * @var int
      */
-    protected $perPage = 1;
+    protected int $perPage = 1;
 
 
     /**
-     * @param App                            $app
-     * @param Collection|CriteriaInterface[] $collection
+     * @param ContainerInterface                        $container
+     * @param Collection<int|string, CriteriaInterface> $initialCriteria
      * @throws RepositoryException
      */
-    public function __construct(App $app, Collection $collection)
+    public function __construct(ContainerInterface $container, Collection $initialCriteria)
     {
-        if ($collection->isEmpty()) {
-            $collection = $this->defaultCriteria();
+        if ($initialCriteria->isEmpty()) {
+            $initialCriteria = $this->defaultCriteria();
         }
 
-        $this->app            = $app;
-        $this->criteria       = $collection;
+        $this->app            = $container;
+        $this->criteria       = $initialCriteria;
         $this->onceCriteria   = new Collection();
         $this->activeCriteria = new Collection();
 
@@ -100,27 +103,39 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns specified model class name.
      *
-     * @return string
+     * @return class-string<TModel>
      */
-    public abstract function model();
+    public abstract function model(): string;
 
 
     /**
      * Creates instance of model to start building query for
      *
-     * @param bool $storeModel  if true, this becomes a fresh $this->model property
-     * @return Model
+     * @param bool $storeModel if true, this becomes a fresh $this->model property
+     * @return TModel&Model
      * @throws RepositoryException
      */
-    public function makeModel($storeModel = true)
+    public function makeModel(bool $storeModel = true): Model
     {
-        $model = $this->app->make($this->model());
-
-        if ( ! $model instanceof Model) {
-            throw new RepositoryException("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
+        try {
+            $model = $this->app->get($this->model());
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $exception) {
+            throw new RepositoryException(
+                "Class {$this->model()} could not be instantiated through the container",
+                $exception->getCode(),
+                $exception
+            );
         }
 
-        if ($storeModel) $this->model = $model;
+        if (! $model instanceof Model) {
+            throw new RepositoryException(
+                "Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model"
+            );
+        }
+
+        if ($storeModel) {
+            $this->modelOrQuery = $model;
+        }
 
         return $model;
     }
@@ -131,120 +146,104 @@ abstract class BaseRepository implements BaseRepositoryInterface
     // -------------------------------------------------------------------------
 
     /**
-     * Give unexecuted query for current criteria
+     * Give unexecuted (fresh) query wioth the current applied criteria.
      *
-     * @return EloquentBuilder
+     * @return EloquentBuilder|BaseBuilder
+     * @throws RepositoryException
      */
-    public function query()
+    public function query(): EloquentBuilder|BaseBuilder
     {
         $this->applyCriteria();
 
-        if ($this->model instanceof Model) {
-            return $this->model->query();
+        if ($this->modelOrQuery instanceof Model) {
+            return $this->modelOrQuery->newQuery();
         }
 
-        return clone $this->model;
+        return clone $this->modelOrQuery;
     }
 
-    /**
-     * Does a simple count(*) for the model / scope
-     *
-     * @return int
-     */
-    public function count()
+    public function count(): int
     {
         return $this->query()->count();
     }
 
     /**
-     * Returns first match
-     *
-     * @param  array $columns
-     * @return Model|null
+     * @param string[] $columns
+     * @return TModel|null
      */
-    public function first($columns = ['*'])
+    public function first(array $columns = ['*']): ?Model
     {
         return $this->query()->first($columns);
     }
 
     /**
-     * Returns first match or throws exception if not found
-     *
-     * @param  array $columns
-     * @return Model
+     * @param string[] $columns
+     * @return TModel|null
      * @throws ModelNotFoundException
      */
-    public function firstOrFail($columns = ['*'])
+    public function firstOrFail(array $columns = ['*']): ?Model
     {
         $result = $this->query()->first($columns);
 
-        if ( ! empty($result)) return $result;
+        if (! empty($result)) {
+            return $result;
+        }
 
-        throw (new ModelNotFoundException)->setModel($this->model());
+        throw (new ModelNotFoundException())->setModel($this->model());
     }
 
     /**
-     * @param  array $columns
-     * @return mixed
+     * @param string[] $columns
+     * @return EloquentCollection<int, TModel>
      */
-    public function all($columns = ['*'])
+    public function all(array $columns = ['*']): EloquentCollection
     {
         return $this->query()->get($columns);
     }
 
     /**
-     * @param  string      $value
-     * @param  string|null $key
-     * @return array
+     * @param string      $value
+     * @param string|null $key
+     * @return Collection<int|string, mixed>
+     * @throws RepositoryException
      */
-    public function pluck($value, $key = null)
+    public function pluck(string $value, ?string $key = null): Collection
     {
         $this->applyCriteria();
 
-        $lists = $this->model->pluck($value, $key);
-
-        if (is_array($lists)) return $lists;
-
-        return $lists->all();
+        return $this->query()->pluck($value, $key);
     }
 
     /**
-     * @param  string      $value
-     * @param  string|null $key
-     * @return array
-     * @deprecated
+     * @param int|null $perPage
+     * @param string[] $columns
+     * @param string   $pageName
+     * @param int|null $page
+     * @return LengthAwarePaginator&iterable<int, TModel>
      */
-    public function lists($value, $key = null)
-    {
-        return $this->pluck($value, $key);
-    }
-
-    /**
-     * @param  int    $perPage
-     * @param  array  $columns
-     * @param  string $pageName
-     * @param  null   $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
-    {
-        $perPage = $perPage ?: $this->getDefaultPerPage();
+    public function paginate(
+        ?int $perPage = null,
+        array $columns = ['*'],
+        string $pageName = 'page',
+        ?int $page = null,
+    ): LengthAwarePaginator {
+        $perPage ??= $this->getDefaultPerPage();
 
         return $this->query()
-                    ->paginate($perPage, $columns, $pageName, $page);
+            ->paginate($perPage, $columns, $pageName, $page);
     }
 
     /**
-     * @param  mixed       $id
-     * @param  array       $columns
-     * @param  string|null $attribute
-     * @return Model|null
+     * @param int|string  $id
+     * @param string[]    $columns
+     * @param string|null $attribute
+     * @return TModel|null
      */
-    public function find($id, $columns = ['*'], $attribute = null)
+    public function find(int|string $id, array $columns = ['*'], ?string $attribute = null): ?Model
     {
         $query = $this->query();
 
-        if (null !== $attribute && $attribute !== $query->getModel()->getKeyName()) {
+        if ($attribute !== null && $attribute !== $query->getModel()->getKeyName()) {
             return $query->where($attribute, $id)->first($columns);
         }
 
@@ -252,89 +251,82 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Returns first match or throws exception if not found
-     *
      * @param int|string $id
-     * @param array      $columns
-     * @return Model
+     * @param string[]   $columns
+     * @return TModel
      * @throws ModelNotFoundException
      */
-    public function findOrFail($id, $columns = ['*'])
+    public function findOrFail(int|string $id, array $columns = ['*']): Model
     {
         $result = $this->query()->find($id, $columns);
 
-        if ( ! empty($result)) return $result;
+        if (! empty($result)) {
+            return $result;
+        }
 
-        throw (new ModelNotFoundException)->setModel($this->model(), $id);
+        throw (new ModelNotFoundException())->setModel($this->model(), $id);
     }
 
     /**
-     * @param  string $attribute
-     * @param  mixed  $value
-     * @param  array  $columns
-     * @return mixed
+     * @param string   $attribute
+     * @param mixed    $value
+     * @param string[] $columns
+     * @return TModel|null
      */
-    public function findBy($attribute, $value, $columns = ['*'])
+    public function findBy(string $attribute, mixed $value, array $columns = ['*']): ?Model
     {
         return $this->query()
-                    ->where($attribute, $value)
-                    ->first($columns);
+            ->where($attribute, $value)
+            ->first($columns);
     }
 
     /**
-     * @param  string $attribute
-     * @param  mixed  $value
-     * @param  array  $columns
-     * @return mixed
+     * @param string   $attribute
+     * @param mixed    $value
+     * @param string[] $columns
+     * @return EloquentCollection<int, TModel>
      */
-    public function findAllBy($attribute, $value, $columns = ['*'])
+    public function findAllBy(string $attribute, mixed $value, $columns = ['*']): EloquentCollection
     {
         return $this->query()
-                    ->where($attribute, $value)
-                    ->get($columns);
+            ->where($attribute, $value)
+            ->get($columns);
     }
 
     /**
      * Find a collection of models by the given query conditions.
      *
-     * @param  array|Arrayable $where
-     * @param  array           $columns
-     * @param  bool            $or
-     * @return Collection|null
+     * @param array<string, callable|array<int, string>|mixed> $where
+     * @param string[]                                         $columns
+     * @param bool                                             $or
+     * @return EloquentCollection
      */
-    public function findWhere($where, $columns = ['*'], $or = false)
+    public function findWhere(array $where, array $columns = ['*'], bool $or = false): EloquentCollection
     {
         $model = $this->query();
 
         foreach ($where as $field => $value) {
-
             if ($value instanceof Closure) {
-
-                $model = ( ! $or)
+                $model = (! $or)
                     ? $model->where($value)
                     : $model->orWhere($value);
 
             } elseif (is_array($value)) {
-
                 if (count($value) === 3) {
+                    [$field, $operator, $search] = $value;
 
-                    list($field, $operator, $search) = $value;
-
-                    $model = ( ! $or)
+                    $model = (! $or)
                         ? $model->where($field, $operator, $search)
                         : $model->orWhere($field, $operator, $search);
-
                 } elseif (count($value) === 2) {
+                    [$field, $search] = $value;
 
-                    list($field, $search) = $value;
-
-                    $model = ( ! $or)
+                    $model = (! $or)
                         ? $model->where($field, $search)
                         : $model->orWhere($field, $search);
                 }
-
             } else {
-                $model = ( ! $or)
+                $model = (! $or)
                     ? $model->where($field, $value)
                     : $model->orWhere($field, $value);
             }
@@ -349,13 +341,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
     // -------------------------------------------------------------------------
 
     /**
-     * Makes a new model without persisting it
+     * Makes a new model without persisting it.
      *
-     * @param  array $data
-     * @return Model
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     * @param array<string, mixed> $data
+     * @return TModel
+     * @throws MassAssignmentException|RepositoryException
      */
-    public function make(array $data)
+    public function make(array $data): Model
     {
         return $this->makeModel(false)->fill($data);
     }
@@ -363,58 +355,61 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Creates a model and returns it
      *
-     * @param  array $data
-     * @return Model|null
+     * @param array<string, mixed> $data
+     * @return TModel|null
+     * @throws RepositoryException
      */
-    public function create(array $data)
+    public function create(array $data): ?Model
     {
-        return $this->makeModel(false)->create($data);
+        return $this->makeModel(false)
+            ->create($data);
     }
 
     /**
-     * Updates a model by id
-     *
-     * @param  array       $data
-     * @param  mixed       $id
-     * @param  string|null $attribute
-     * @return bool     false if could not find model or not succesful in updating
+     * @param array<string, mixed> $data
+     * @param int|string           $id
+     * @param string|null          $attribute
+     * @return bool
      */
-    public function update(array $data, $id, $attribute = null)
+    public function update(array $data, int|string $id, ?string $attribute = null): bool
     {
         $model = $this->find($id, ['*'], $attribute);
 
-        if (empty($model)) return false;
+        if (! $model) {
+            return false;
+        }
 
-        return $model->fill($data)->save();
+        return $model->update($data);
     }
 
     /**
-     * Finds and fills a model by id, without persisting changes
+     * Finds and fills a model by id, without persisting changes.
      *
-     * @param  array       $data
-     * @param  mixed       $id
-     * @param  string|null $attribute
+     * @param array<string, mixed> $data
+     * @param int|string           $id
+     * @param string|null          $attribute
      * @return Model|false
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     * @throws MassAssignmentException|ModelNotFoundException
      */
-    public function fill(array $data, $id, $attribute = null)
+    public function fill(array $data, int|string $id, ?string $attribute = null): Model|false
     {
         $model = $this->find($id, ['*'], $attribute);
 
-        if (empty($model)) {
-            throw (new ModelNotFoundException)->setModel($this->model());
+        if (! $model) {
+            throw (new ModelNotFoundException())->setModel($this->model());
         }
 
         return $model->fill($data);
     }
 
     /**
-     * Deletes a model by id
+     * Deletes a model by id.
      *
-     * @param  mixed $id
-     * @return bool
+     * @param int|string $id
+     * @return int
+     * @throws RepositoryException
      */
-    public function delete($id)
+    public function delete(int|string $id): int
     {
         return $this->makeModel(false)->destroy($id);
     }
@@ -428,18 +423,18 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Applies callback to query for easier elaborate custom queries
      * on all() calls.
      *
-     * @param  Closure $callback must return query/builder compatible
-     * @param  array   $columns
-     * @return Collection
-     * @throws \Exception
+     * @param Closure  $callback must return query/builder compatible
+     * @param string[] $columns
+     * @return EloquentCollection<int, TModel>
+     * @throws RepositoryException
      */
-    public function allCallback(Closure $callback, $columns = ['*'])
+    public function allCallback(Closure $callback, array $columns = ['*']): EloquentCollection
     {
-        /** @var EloquentBuilder $result */
-        $result = $callback( $this->query() );
+        $result = $callback($this->query());
 
-        $this->checkValidCustomCallback($result);
+        $this->assertValidCustomCallback($result);
 
+        /** @var EloquentBuilder|BaseBuilder $result */
         return $result->get($columns);
     }
 
@@ -447,33 +442,19 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Applies callback to query for easier elaborate custom queries
      * on find (actually: ->first()) calls.
      *
-     * @param  Closure $callback must return query/builder compatible
-     * @param  array   $columns
-     * @return Collection
-     * @throws \Exception
+     * @param Closure  $callback must return query/builder compatible
+     * @param string[] $columns
+     * @return TModel|null
+     * @throws RepositoryException
      */
-    public function findCallback(Closure $callback, $columns = ['*'])
+    public function findCallback(Closure $callback, array $columns = ['*']): ?Model
     {
-        /** @var EloquentBuilder $result */
-        $result = $callback( $this->query() );
+        $result = $callback($this->query());
 
-        $this->checkValidCustomCallback($result);
+        $this->assertValidCustomCallback($result);
 
+        /** @var EloquentBuilder|BaseBuilder $result */
         return $result->first($columns);
-    }
-
-    /**
-     * @param  Model|EloquentBuilder|DatabaseBuilder $result
-     * @throws InvalidArgumentException
-     */
-    protected function checkValidCustomCallback($result)
-    {
-        if (    ! is_a($result, Model::class)
-            &&  ! is_a($result, EloquentBuilder::class)
-            &&  ! is_a($result, DatabaseBuilder::class)
-        ) {
-            throw new InvalidArgumentException('Incorrect allCustom call in repository. The callback must return a QueryBuilder/EloquentBuilder or Model object.');
-        }
     }
 
 
@@ -493,61 +474,45 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Override with your own defaults (check ExtendedRepository's refreshed,
      * named Criteria for examples).
      *
-     * @return Collection|CriteriaInterface[]
+     * @return Collection<int|string, CriteriaInterface>
      */
-    public function defaultCriteria()
+    public function defaultCriteria(): Collection
     {
         return new Collection();
     }
 
 
     /**
-     * Builds the default criteria and replaces the criteria stack to apply with
-     * the default collection.
-     *
-     * @return $this
+     * Builds the default criteria and replaces the criteria stack to apply with the default collection.
      */
-    public function restoreDefaultCriteria()
+    public function restoreDefaultCriteria(): void
     {
         $this->criteria = $this->defaultCriteria();
-
-        return $this;
     }
 
-
-    /**
-     * Sets criteria to empty collection
-     *
-     * @return $this
-     */
-    public function clearCriteria()
+    public function clearCriteria(): void
     {
         $this->criteria = new Collection();
-
-        return $this;
     }
 
     /**
      * Sets or unsets ignoreCriteria flag. If it is set, all criteria (even
      * those set to apply once!) will be ignored.
      *
-     * @param  bool $ignore
-     * @return $this
+     * @param bool $ignore
      */
-    public function ignoreCriteria($ignore = true)
+    public function ignoreCriteria(bool $ignore = true): void
     {
         $this->ignoreCriteria = $ignore;
-
-        return $this;
     }
 
     /**
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection|CriteriaInterface[]
+     * @return Collection<int|string, CriteriaInterface>
      */
-    public function getCriteria()
+    public function getCriteria(): Collection
     {
         return clone $this->criteria;
     }
@@ -555,9 +520,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns a cloned set of all currently set once criteria.
      *
-     * @return Collection|CriteriaInterface[]
+     * @return Collection<int|string, CriteriaInterface>
      */
-    public function getOnceCriteria()
+    public function getOnceCriteria(): Collection
     {
         return clone $this->onceCriteria;
     }
@@ -566,44 +531,152 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection|CriteriaInterface[]
+     * @return Collection<int|string, CriteriaInterface>
      */
-    public function getAllCriteria()
+    public function getAllCriteria(): Collection
     {
-        return $this->getCriteria()->merge($this->getOnceCriteria());
+        return $this->getCriteria()
+            ->merge($this->getOnceCriteria());
     }
 
     /**
-     * Returns the criteria that must be applied for the next query
+     * Applies Criteria to the model for the upcoming query.
      *
-     * @return Collection|CriteriaInterface[]
+     * This takes the default/standard Criteria, then overrides
+     * them with whatever is found in the onceCriteria list
+     *
+     * @throws RepositoryException
      */
-    protected function getCriteriaToApply()
+    public function applyCriteria(): void
+    {
+        // If we're ignoring criteria, the model must be remade without criteria ...
+        if ($this->ignoreCriteria === true) {
+            // ... and make sure that they are re-applied when we stop ignoring.
+            if (! $this->activeCriteria->isEmpty()) {
+                $this->makeModel();
+                $this->activeCriteria = new Collection();
+            }
+            return;
+        }
+
+        if ($this->areActiveCriteriaUnchanged()) {
+            return;
+        }
+
+        // If the new Criteria are different, clear the model and apply the new Criteria.
+        $this->makeModel();
+
+        $this->markAppliedCriteriaAsActive();
+
+
+        // Apply the collected criteria to the query.
+        foreach ($this->getCriteriaToApply() as $criteria) {
+            $this->modelOrQuery = $criteria->apply($this->modelOrQuery, $this);
+        }
+
+        $this->clearOnceCriteria();
+    }
+
+    /**
+     * Pushes Criteria, optionally by identifying key.
+     *
+     * If a criteria already exists for the key, it is overridden
+     * Note that this does NOT overrule any onceCriteria, even if set by key!
+     *
+     * @param CriteriaInterface $criteria
+     * @param string|null       $key        Unique identifier, may be used to remove and overwrite criteria
+     */
+    public function pushCriteria(CriteriaInterface $criteria, ?string $key = null): void
+    {
+        // Standard bosnadev behavior.
+        if ($key === null) {
+            $this->criteria->push($criteria);
+            return;
+        }
+
+        // Set/override by key.
+        $this->criteria->put($key, $criteria);
+        return;
+    }
+
+    public function removeCriteria(string $key): void
+    {
+        $this->criteria->forget($key);
+    }
+
+    /**
+     * Pushes Criteria, but only for the next call, resets to default afterwards.
+     *
+     * Note that this does NOT work for specific criteria exclusively, it resets
+     * to default for ALL Criteria.
+     *
+     * @param CriteriaInterface $criteria
+     * @param string|null       $key
+     * @return $this
+     */
+    public function pushCriteriaOnce(CriteriaInterface $criteria, ?string $key = null): static
+    {
+        if ($key === null) {
+            $this->onceCriteria->push($criteria);
+            return $this;
+        }
+
+        // Set/override by key.
+        $this->onceCriteria->put($key, $criteria);
+        return $this;
+    }
+
+    /**
+     * Removes Criteria, but only for the next call, resets to default afterwards.
+     *
+     * Note that this does NOT work for specific criteria exclusively, it resets
+     * to default for ALL Criteria.
+     *
+     * In effect, this adds a NullCriteria to onceCriteria by key, disabling any criteria
+     * by that key in the normal criteria list.
+     *
+     * @param string $key
+     * @return $this
+     */
+    public function removeCriteriaOnce(string $key): static
+    {
+        // If not present in normal list, there is nothing to override.
+        if (! $this->criteria->has($key)) {
+            return $this;
+        }
+
+        // Override by key with null-value.
+        $this->onceCriteria->put($key, new NullCriteria());
+        return $this;
+    }
+
+
+    /**
+     * Returns the criteria that must be applied for the next query.
+     *
+     * @return Collection<int|string, CriteriaInterface>
+     */
+    protected function getCriteriaToApply(): Collection
     {
         // get the standard criteria
         $criteriaToApply = $this->getCriteria();
 
         // overrule them with criteria to be applied once
-        if ( ! $this->onceCriteria->isEmpty()) {
-
+        if (! $this->onceCriteria->isEmpty()) {
             foreach ($this->onceCriteria as $onceKey => $onceCriteria) {
-
-                // if there is no key, we can only add the criteria
+                // If there is no key, we can only add the criteria.
                 if (is_numeric($onceKey)) {
-
                     $criteriaToApply->push($onceCriteria);
                     continue;
                 }
 
-                // if there is a key, override or remove
-                // if Null, remove criteria
-                if (empty($onceCriteria) || is_a($onceCriteria, NullCriteria::class)) {
-
+                // If there is a key, override or remove; if Null, remove criterion.
+                if ($onceCriteria instanceof NullCriteria) {
                     $criteriaToApply->forget($onceKey);
                     continue;
                 }
 
-                // otherwise, overide the criteria
+                // Otherwise, overide the criteria.
                 $criteriaToApply->put($onceKey, $onceCriteria);
             }
         }
@@ -612,66 +685,21 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Applies Criteria to the model for the upcoming query
-     *
-     * This takes the default/standard Criteria, then overrides
-     * them with whatever is found in the onceCriteria list
-     *
-     * @return $this
-     */
-    public function applyCriteria()
-    {
-        // if we're ignoring criteria, the model must be remade without criteria
-        if ($this->ignoreCriteria === true) {
-
-            // and make sure that they are re-applied when we stop ignoring
-            if ( ! $this->activeCriteria->isEmpty()) {
-                $this->makeModel();
-                $this->activeCriteria = new Collection();
-            }
-            return $this;
-        }
-
-        if ($this->areActiveCriteriaUnchanged()) return $this;
-
-        // if the new Criteria are different, clear the model and apply the new Criteria
-        $this->makeModel();
-
-        $this->markAppliedCriteriaAsActive();
-
-
-        // apply the collected criteria to the query
-        foreach ($this->getCriteriaToApply() as $criteria) {
-
-            if ($criteria instanceof CriteriaInterface) {
-
-                $this->model = $criteria->apply($this->model, $this);
-            }
-        }
-
-        $this->clearOnceCriteria();
-
-        return $this;
-    }
-
-    /**
-     * Checks whether the criteria that are currently pushed
-     * are the same as the ones that were previously applied
+     * Checks whether the criteria that are currently pushed are the same as the ones that were previously applied.
      *
      * @return bool
      */
-    protected function areActiveCriteriaUnchanged()
+    protected function areActiveCriteriaUnchanged(): bool
     {
-        return (    $this->onceCriteria->isEmpty()
-                &&  $this->criteria == $this->activeCriteria
-                );
+        return ($this->onceCriteria->isEmpty()
+            && $this->criteria == $this->activeCriteria
+        );
     }
 
     /**
-     * Marks the active criteria so we can later check what
-     * is currently active
+     * Marks the active criteria, so we can later check what is currently active.
      */
-    protected function markAppliedCriteriaAsActive()
+    protected function markAppliedCriteriaAsActive(): void
     {
         $this->activeCriteria = $this->getCriteriaToApply();
     }
@@ -679,114 +707,41 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * After applying, removes the criteria that should only have applied once
      */
-    protected function clearOnceCriteria()
+    protected function clearOnceCriteria(): void
     {
-        if ( ! $this->onceCriteria->isEmpty()) {
-            $this->onceCriteria = new Collection();
-        }
-    }
-
-    /**
-     * Pushes Criteria, optionally by identifying key
-     * If a criteria already exists for the key, it is overridden
-     *
-     * Note that this does NOT overrule any onceCriteria, even if set by key!
-     *
-     * @param  CriteriaInterface $criteria
-     * @param  string|null       $key       unique identifier to store criteria as
-     *                                      this may be used to remove and overwrite criteria
-     *                                      empty for normal automatic numeric key
-     * @return $this
-     */
-    public function pushCriteria(CriteriaInterface $criteria, $key = null)
-    {
-        // standard bosnadev behavior
-        if (is_null($key)) {
-
-            $this->criteria->push($criteria);
-            return $this;
+        if ($this->onceCriteria->isEmpty()) {
+            return;
         }
 
-        // set/override by key
-        $this->criteria->put($key, $criteria);
-
-        return $this;
+        $this->onceCriteria = new Collection();
     }
 
-    /**
-     * Removes criteria by key, if it exists
-     *
-     * @param string $key
-     * @return $this
-     */
-    public function removeCriteria($key)
+    protected function assertValidCustomCallback(mixed $result): void
     {
-        $this->criteria->forget($key);
-
-        return $this;
-    }
-
-    /**
-     * Pushes Criteria, but only for the next call, resets to default afterwards
-     * Note that this does NOT work for specific criteria exclusively, it resets
-     * to default for ALL Criteria.
-     *
-     * @param  CriteriaInterface $criteria
-     * @param  string|null       $key
-     * @return $this
-     */
-    public function pushCriteriaOnce(CriteriaInterface $criteria, $key = null)
-    {
-        if (is_null($key)) {
-
-            $this->onceCriteria->push($criteria);
-            return $this;
+        if (
+            ! $result instanceof Model
+            && ! $result instanceof EloquentBuilder
+            && ! $result instanceof BaseBuilder
+        ) {
+            throw new InvalidArgumentException(
+                'Incorrect allCustom call in repository. '
+                . 'The callback must return a QueryBuilder/EloquentBuilder or Model object.'
+            );
         }
-
-        // set/override by key
-        $this->onceCriteria->put($key, $criteria);
-
-        return $this;
     }
-
-
-    /**
-     * Removes Criteria, but only for the next call, resets to default afterwards
-     * Note that this does NOT work for specific criteria exclusively, it resets
-     * to default for ALL Criteria.
-     *
-     * In effect, this adds a NullCriteria to onceCriteria by key, disabling any criteria
-     * by that key in the normal criteria list.
-     *
-     * @param  string $key
-     * @return $this
-     */
-    public function removeCriteriaOnce($key)
-    {
-        // if not present in normal list, there is nothing to override
-        if ( ! $this->criteria->has($key)) return $this;
-
-        // override by key with Null-value
-        $this->onceCriteria->put($key, new NullCriteria);
-
-        return $this;
-    }
-
-
-    // ------------------------------------------------------------------------------
-    //      Misc.
-    // ------------------------------------------------------------------------------
 
     /**
      * Returns default per page count.
      *
      * @return int
      */
-    protected function getDefaultPerPage()
+    protected function getDefaultPerPage(): int
     {
-        $perPage = (is_numeric($this->perPage) && $this->perPage > 0)
-            ? $this->perPage
-            : $this->makeModel(false)->getPerPage();
+        try {
+            $perPage = $this->perPage ?: $this->makeModel(false)->getPerPage();
+        } catch (RepositoryException) {
+            $perPage = 50;
+        }
 
         return config('repository.perPage', $perPage);
     }

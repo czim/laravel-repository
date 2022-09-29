@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Exceptions;
 
-use Exception;
+use RuntimeException;
 
-class RepositoryException extends Exception
+class RepositoryException extends RuntimeException
 {
-
 }
 

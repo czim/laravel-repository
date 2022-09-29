@@ -1,63 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class Has extends AbstractCriteria
 {
-    /**
-     * @var string
-     */
-    protected $relation;
-
-    /**
-     * @var string
-     */
-    protected $operator;
-
-    /**
-     * @var int
-     */
-    protected $count;
-
-    /**
-     * @var string
-     */
-    protected $boolean;
-
-    /**
-     * @var Closure
-     */
-    protected $callback;
-
-
-    /**
-     * @param string  $relation
-     * @param string  $operator
-     * @param int     $count
-     * @param string  $boolean
-     * @param Closure $callback
-     */
-    public function __construct($relation, $operator = '>=', $count = 1, $boolean = 'and', Closure $callback = null)
-    {
-        $this->relation = $relation;
-        $this->callback = $callback;
-        $this->operator = $operator;
-        $this->count    = $count;
-        $this->boolean  = $boolean;
+    public function __construct(
+        protected string $relation,
+        protected string $operator = '>=',
+        protected int $count = 1,
+        protected string $boolean = 'and',
+        protected ?Closure $callback = null,
+    ) {
     }
 
-
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->has($this->relation, $this->operator, $this->count, $this->boolean, $this->callback);
     }
-
 }

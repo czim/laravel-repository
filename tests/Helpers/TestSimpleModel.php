@@ -1,10 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test\Helpers;
 
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as BaseBuilder;
 
 class TestSimpleModel extends Model
 {
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'unique_field',
         'second_field',
@@ -13,16 +21,19 @@ class TestSimpleModel extends Model
         'hidden',
     ];
 
-    // for testing with hide/unhide attributes
+    /**
+     * @var string[]
+     */
     protected $hidden = [
         'hidden',
     ];
 
-
-    // for testing with scopes
-    public function scopeTesting($query)
+    /**
+     * @param Model|EloquentBuilder|BaseBuilder $query
+     * @return EloquentBuilder|BaseBuilder
+     */
+    public function scopeTesting($query): EloquentBuilder|BaseBuilder
     {
         return $query->whereNotNull('second_field');
     }
-
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test;
 
 use Czim\Repository\ExtendedRepository;
@@ -6,14 +9,11 @@ use Czim\Repository\Test\Helpers\TestExtendedModel;
 
 class ExtendedRepositoryTest extends TestCase
 {
-    const TABLE_NAME       = 'test_extended_models';
-    const UNIQUE_FIELD     = 'unique_field';
-    const SECOND_FIELD     = 'second_field';
+    protected const TABLE_NAME       = 'test_extended_models';
+    protected const UNIQUE_FIELD     = 'unique_field';
+    protected const SECOND_FIELD     = 'second_field';
 
-    /**
-     * @var ExtendedRepository
-     */
-    protected $repository;
+    protected ?ExtendedRepository $repository = null;
 
 
     public function setUp(): void
@@ -23,11 +23,8 @@ class ExtendedRepositoryTest extends TestCase
         $this->repository = $this->app->make(Helpers\TestExtendedRepository::class);
     }
 
-    protected function seedDatabase()
+    protected function seedDatabase(): void
     {
-        // testing table is in memory, no need to truncate
-        //$this->app->make('db')->table(static::TABLE_NAME)->delete();
-
         TestExtendedModel::create([
             'unique_field' => '999',
             'second_field' => null,
@@ -144,8 +141,14 @@ class ExtendedRepositoryTest extends TestCase
     public function it_uses_default_criteria_when_not_configured_not_to()
     {
         // by default, the defaultCriteria() should be loaded
-        $this->assertTrue($this->repository->defaultCriteria()->has('TestDefault'), "Default Criteria should include TestDefault");
-        $this->assertTrue($this->repository->getCriteria()->has('TestDefault'), "Default Criteria should be in loaded getCriteria() list");
+        $this->assertTrue(
+            $this->repository->defaultCriteria()->has('TestDefault'),
+            "Default Criteria should include TestDefault"
+        );
+        $this->assertTrue(
+            $this->repository->getCriteria()->has('TestDefault'),
+            "Default Criteria should be in loaded getCriteria() list"
+        );
     }
 
     /**
@@ -165,7 +168,7 @@ class ExtendedRepositoryTest extends TestCase
         //   when settings have changed on the repository (cache, active, scopes)
 
         // create spy Criteria to check how many times we apply the criteria
-        $mockCriteria = $this->makeMockCriteria(6, 'FirstMockCriteria');
+        $mockCriteria = $this->makeMockCriteria(6);
         $this->repository->pushCriteria($mockCriteria);
 
         // first call, should apply +1
@@ -183,12 +186,12 @@ class ExtendedRepositoryTest extends TestCase
         $this->repository->count();
 
         // call after pushing new criteria +1
-        $mockCriteriaTwo = $this->makeMockCriteria('twice', 'SecondMockCriteria');
+        $mockCriteriaTwo = $this->makeMockCriteria('twice');
         $this->repository->pushCriteria($mockCriteriaTwo, 'MockTwo');
         $this->repository->count();
 
         // call with once-criteria set +1 (and +1 for mock Two)
-        $mockOnce = $this->makeMockCriteria('once', 'OnceMockCriteria');
+        $mockOnce = $this->makeMockCriteria('once');
         $this->repository->pushCriteriaOnce($mockOnce);
         $this->repository->count();
 

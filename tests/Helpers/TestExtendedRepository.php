@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Test\Helpers;
 
 use Czim\Repository\Criteria\NullCriteria;
@@ -7,28 +10,42 @@ use Czim\Repository\Traits\FindsModelsByTranslationTrait;
 use Czim\Repository\Traits\HandlesEloquentRelationManipulationTrait;
 use Czim\Repository\Traits\HandlesEloquentSavingTrait;
 use Czim\Repository\Traits\HandlesListifyModelsTrait;
+use Illuminate\Support\Collection;
 
 class TestExtendedRepository extends ExtendedRepository
 {
-    use HandlesEloquentRelationManipulationTrait,
-        HandlesEloquentSavingTrait,
-        HandlesListifyModelsTrait,
-        FindsModelsByTranslationTrait;
+    use FindsModelsByTranslationTrait;
+    use HandlesEloquentRelationManipulationTrait;
+    use HandlesEloquentSavingTrait;
+    use HandlesListifyModelsTrait;
 
-    // model needs an active check by default
-    protected $hasActive = true;
+    /**
+     * model needs an active check by default
+     *
+     * @var bool
+     */
+    protected bool $hasActive = true;
 
-    // test assumes cache is enabled by default
-    protected $enableCache = true;
+    /**
+     * test assumes cache is enabled by default
+     *
+     * @var bool
+     */
+    protected bool $enableCache = true;
 
 
-    public function model()
+    /**
+     * {@inheritDoc}
+     */
+    public function model(): string
     {
         return TestExtendedModel::class;
     }
 
-
-    public function defaultCriteria()
+    /**
+     * {@inheritDoc}
+     */
+    public function defaultCriteria(): Collection
     {
         return collect([
             'TestDefault' => new NullCriteria(),

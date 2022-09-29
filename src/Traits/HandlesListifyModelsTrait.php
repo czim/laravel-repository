@@ -1,46 +1,48 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Traits;
 
 use Czim\Listify\Contracts\ListifyInterface;
+use Czim\Repository\Contracts\HandlesListifyModelsInterface;
+use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 
+/**
+ * @see HandlesListifyModelsInterface
+ */
 trait HandlesListifyModelsTrait
 {
     /**
-     * Updates the position for a record using Listify
+     * Updates the position for a record using Listify.
      *
-     * @param  int $id
-     * @param  int $newPosition     default: top spot
-     * @return boolean
+     * @param int $id
+     * @param int $newPosition default: top spot
+     * @return Model|false
      */
-    public function updatePosition($id, $newPosition = 1)
+    public function updatePosition(int $id, int $newPosition = 1): Model|false
     {
         $model = $this->makeModel(false);
 
-        if ( ! ($model = $model->find($id))) {
+        $model = $model->find($id);
+
+        if (! $model) {
             return false;
         }
 
-        $this->checkModelHasListify($model);
+        $this->assertModelHasListify($model);
 
         /** @var ListifyInterface $model */
-        $model->setListPosition( (int) $newPosition );
+        $model->setListPosition($newPosition);
 
         return $model;
     }
 
-    /**
-     * Checks whether the given model has the Listify trait
-     *
-     * @param $model
-     */
-    protected function checkModelHasListify($model)
+    protected function assertModelHasListify(Model $model): void
     {
-        // should be done with a real interface, but since that is not provided
-        // with Listify by default, check only for the methods used here
-        // ( ! is_a($model, ListifyInterface::class))
-
-        if ( ! method_exists($model, 'setListPosition')) {
-            throw new \InvalidArgumentException('Method can only be used on Models with the Listify trait');
+        if (! method_exists($model, 'setListPosition')) {
+            throw new InvalidArgumentException('Method can only be used on Models with the Listify trait');
         }
     }
 }

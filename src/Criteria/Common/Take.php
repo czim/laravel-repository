@@ -1,33 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class Take extends AbstractCriteria
 {
-    /**
-     * @var int
-     */
-    protected $quantity;
-
-
-    /**
-     * The number of records returned
-     *
-     * @param int $quantity
-     */
-    public function __construct($quantity)
+    public function __construct(protected int $quantity)
     {
-        $this->quantity = $quantity;
     }
 
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->take($this->quantity);
     }
 }

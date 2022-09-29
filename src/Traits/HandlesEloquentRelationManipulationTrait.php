@@ -1,82 +1,78 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Traits;
 
+use Czim\Repository\Contracts\HandlesEloquentRelationManipulationInterface;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * The point of this is to provide Eloquent relations management through
  * some intermediate object (i.e. a Repository) to make model manipulation
  * easier to test/mock.
+ *
+ * @see HandlesEloquentRelationManipulationInterface
  */
 trait HandlesEloquentRelationManipulationTrait
 {
     /**
-     * Executes a sync on the model provided
-     *
-     * @param  Model $model
-     * @param  string   $relation name of the relation (method name)
-     * @param  array    $ids      list of id's to connect to
-     * @param bool      $detaching
-     * @return
+     * @param Model                  $model
+     * @param string                 $relation name of the relation (method name)
+     * @param array<int, int|string> $ids      list of id's to connect to
+     * @param bool                   $detaching
      */
-    public function sync(Model $model, $relation, $ids, $detaching = true)
+    public function sync(Model $model, string $relation, array $ids, bool $detaching = true): void
     {
-        return $model->{$relation}()->sync($ids, $detaching);
+        $model->{$relation}()->sync($ids, $detaching);
     }
 
     /**
-     * Executes an attach on the model provided
-     *
-     * @param  Model $model
-     * @param  string   $relation name of the relation (method name)
-     * @param  int      $id
-     * @param  array    $attributes
-     * @param  boolean  $touch
+     * @param Model                $model
+     * @param string               $relation name of the relation (method name)
+     * @param int|string           $id
+     * @param array<string, mixed> $attributes
+     * @param bool                 $touch
      */
-    public function attach(Model $model, $relation, $id, array $attributes = array(), $touch = true)
-    {
-        return $model->{$relation}()->attach($id, $attributes, $touch);
+    public function attach(
+        Model $model,
+        string $relation,
+        int|string $id,
+        array $attributes = [],
+        bool $touch = true
+    ): void {
+        $model->{$relation}()->attach($id, $attributes, $touch);
     }
 
     /**
-     * Executes a detach on the model provided
-     *
-     * @param  Model $model
-     * @param  string   $relation name of the relation (method name)
-     * @param  array    $ids
-     * @param  boolean  $touch
-     * @return
-     * @internal param array $attributes
+     * @param Model                  $model
+     * @param string                 $relation name of the relation (method name)
+     * @param array<int, int|string> $ids
+     * @param bool                   $touch
      */
-    public function detach(Model $model, $relation, $ids = array(), $touch = true)
+    public function detach(Model $model, string $relation, array $ids = [], bool $touch = true): void
     {
-        return $model->{$relation}()->detach($ids, $touch);
+        $model->{$relation}()->detach($ids, $touch);
     }
 
     /**
-     * Excecutes an associate on the model model provided
-     *
-     * @param  Model $model
-     * @param  string   $relation name of the relation (method name)
-     * @param  mixed    $with
-     * @return boolean
+     * @param Model            $model
+     * @param string           $relation name of the relation (method name)
+     * @param Model|int|string $with
      */
-    public function associate(Model $model, $relation, $with)
+    public function associate(Model $model, string $relation, Model|int|string $with): void
     {
-        return $model->{$relation}()->associate($with);
+        $model->{$relation}()->associate($with);
     }
 
     /**
-     * Excecutes a dissociate on the model model provided
+     * Excecutes a dissociate on the model model provided.
      *
-     * @param  Model $model
-     * @param  string   $relation name of the relation (method name)
-     * @param  mixed    $from
-     * @return boolean
+     * @param Model  $model
+     * @param string $relation name of the relation (method name)
      */
-    public function dissociate(Model $model, $relation, $from)
+    public function dissociate(Model $model, string $relation): void
     {
-        return $model->{$relation}()->dissociate($from);
+        $model->{$relation}()->dissociate();
     }
-
 }

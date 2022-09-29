@@ -1,55 +1,29 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Czim\Repository\Criteria\Common;
 
 use Czim\Repository\Criteria\AbstractCriteria;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 class WhereHas extends AbstractCriteria
 {
-    /**
-     * @var string
-     */
-    protected $relation;
-
-    /**
-     * @var Closure
-     */
-    protected $callback;
-
-    /**
-     * @var string
-     */
-    protected $operator;
-
-    /**
-     * @var int
-     */
-    protected $count;
-
-
-    /**
-     * @param string  $relation
-     * @param Closure $callback
-     * @param string  $operator
-     * @param int     $count
-     */
-    public function __construct($relation, Closure $callback, $operator = '>=', $count = 1)
-    {
-        $this->relation = $relation;
-        $this->callback = $callback;
-        $this->operator = $operator;
-        $this->count = $count;
+    public function __construct(
+        protected string $relation,
+        protected Closure $callback,
+        protected string $operator = '>=',
+        protected int $count = 1,
+    ) {
     }
 
-
-    /**
-     * @param Builder $model
-     * @return mixed
-     */
-    public function applyToQuery($model)
-    {
+    protected function applyToQuery(
+        Model|Relation|DatabaseBuilder|EloquentBuilder $model
+    ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->whereHas($this->relation, $this->callback, $this->operator, $this->count);
     }
-
 }
