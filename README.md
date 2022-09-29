@@ -15,17 +15,26 @@ Among the added functionality is the ability to override or 'temporarily' set an
 I'm well aware that there is *much* to say against using Repositories like this (and the repository pattern in general), but I find they have their uses.
 I prefer using them to make for easier unit testing in large projects.
 
+> Note: I recommand against using this package. I'm making some updates for my personal legacy projects,
+> but I consider this approach to be a serious antipattern (at least with Eloquent).
+
 ## Version Compatibility
 
-| Laravel    | Package |
-|:-----------|:--------|
-| 5.1        | 1.0     |
-| 5.2        | 1.2     |
-| 5.3        | 1.2     |
-| 5.4 to 5.8 | 1.4     |
-| 6.0        | 2.0     |
-| 7.0, 8.0   | 2.1     |
-| 9.0        | 3.0     |
+| Laravel    | Package  |
+|:-----------|:---------|
+| 5.1        | 1.0      |
+| 5.2        | 1.2      |
+| 5.3        | 1.2      |
+| 5.4 to 5.8 | 1.4      |
+| 6.0        | 2.0      |
+| 7.0, 8.0   | 2.1      |
+| 9.0        | 3.0, 4.0 |
+
+### Warning
+
+Version 4.0 has many breaking changes.
+Refer to the [Changelog](CHANGELOG.md) for details.
+
 
 ## Install
 
@@ -55,25 +64,7 @@ Simply extend the (abstract) repository class of your choice, either `Czim\Repos
 The only abstract method that must be provided is the `model` method (this is just like the way Bosnadev's repositories are used).
 
 
-### Make Repository
-
-The `make:repository` command automatically creates a new Eloquent model repository class.
-It will also attempt to link the correct Eloquent model, but make sure to confirm that it is properly set up.
-
-``` bash
-php artisan make:repository PostsRepository
-```
-
-The above command will create a repository class named PostsRepository and link the Post model to it.
-
-If you want to set the related model explicitly, you can add the model class name:
-
-``` bash
-php artisan make:repository PostsRepository "App\Models\AlternativePost"
-```
-
-
-### Base-, Extended- and PostProcessing
+### Base- and Extended Repositories
 
 Depending on what you require, three different abstract repository classes may be extended:
 
@@ -86,10 +77,6 @@ Depending on what you require, three different abstract repository classes may b
     Handles an **active** check for Models, which will by default exclude any model which will not have its `active` attribute set to true (configurable by setting `hasActive` and/or `activeColumn`).
     Handles caching, using [dwightwatson/rememberable](https://github.com/dwightwatson/rememberable) by default (but you can use your own Caching Criteria if desired).
     Allows you to set Model scopes, for when you want to use an Eloquent model scope to build your query.
-
-* `ExtendedPostProcessingRepository`
-
-    Just like Extended, but also allows for altering/decorating models after they are retrieved. By default, the only PostProcessor active is one that allows you to hide/unhide attributes on Models.
 
 ### Using the repository to retrieve models
 
