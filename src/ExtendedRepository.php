@@ -6,8 +6,10 @@ namespace Czim\Repository;
 
 use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Contracts\ExtendedRepositoryInterface;
-use Illuminate\Support\Collection;
+use Czim\Repository\Criteria\Common\Scopes;
+use Czim\Repository\Criteria\Common\UseCache;
 use Czim\Repository\Enums\CriteriaKey;
+use Illuminate\Support\Collection;
 use Psr\Container\ContainerInterface;
 
 abstract class ExtendedRepository extends BaseRepository implements ExtendedRepositoryInterface
@@ -222,7 +224,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
             return false;
         }
 
-        $model->{$this->activeColumn} = (bool) $active;
+        $model->{$this->activeColumn} = $active;
 
         return $model->save();
     }
@@ -253,22 +255,22 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      * Returns Criteria to use for caching. Override to replace with something other
      * than Rememberable (which is used by the default Common\UseCache Criteria);
      *
-     * @return Criteria\Common\UseCache
+     * @return UseCache
      */
     protected function getCacheCriteriaInstance(): CriteriaInterface
     {
-        return new Criteria\Common\UseCache();
+        return new UseCache();
     }
 
     /**
      * Returns Criteria to use for applying scopes. Override to replace with something
      * other the default Common\Scopes Criteria.
      *
-     * @return Criteria\Common\Scopes
+     * @return Scopes
      */
     protected function getScopesCriteriaInstance(): CriteriaInterface
     {
-        return new Criteria\Common\Scopes(
+        return new Scopes(
             $this->convertScopesToCriteriaArray()
         );
     }

@@ -361,8 +361,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function create(array $data): ?Model
     {
-        return $this->makeModel(false)
-            ->create($data);
+        return $this->makeModel(false)->create($data);
     }
 
     /**
@@ -596,7 +595,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         // Set/override by key.
         $this->criteria->put($key, $criteria);
-        return;
     }
 
     public function removeCriteria(string $key): void
