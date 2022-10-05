@@ -255,7 +255,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      * Returns Criteria to use for caching. Override to replace with something other
      * than Rememberable (which is used by the default Common\UseCache Criteria);
      *
-     * @return UseCache
+     * @return CriteriaInterface
      */
     protected function getCacheCriteriaInstance(): CriteriaInterface
     {
@@ -266,7 +266,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
      * Returns Criteria to use for applying scopes. Override to replace with something
      * other the default Common\Scopes Criteria.
      *
-     * @return Scopes
+     * @return CriteriaInterface
      */
     protected function getScopesCriteriaInstance(): CriteriaInterface
     {
