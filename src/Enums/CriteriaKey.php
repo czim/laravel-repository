@@ -8,6 +8,14 @@ use MyCLabs\Enum\Enum;
 
 /**
  * Unique identifiers for standard Criteria that may be loaded in repositories.
+ *
+ * @method static static ACTIVE()
+ * @method static static CACHE()
+ * @method static static ORDER()
+ * @method static static SCOPE()
+ * @method static static WITH()
+ *
+ * @extends Enum<string>
  */
 class CriteriaKey extends Enum
 {
