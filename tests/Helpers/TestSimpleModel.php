@@ -29,10 +29,10 @@ class TestSimpleModel extends Model
     ];
 
     /**
-     * @param Model|EloquentBuilder|BaseBuilder $query
+     * @param self|EloquentBuilder<self>|BaseBuilder $query
      * @return EloquentBuilder|BaseBuilder
      */
-    public function scopeTesting($query): EloquentBuilder|BaseBuilder
+    public function scopeTesting(TestSimpleModel|EloquentBuilder|BaseBuilder $query): EloquentBuilder|BaseBuilder
     {
         return $query->whereNotNull('second_field');
     }

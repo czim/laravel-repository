@@ -8,12 +8,14 @@ use Closure;
 use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Test\Helpers\TranslatableConfig;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
 use Mockery\MockInterface;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
-abstract class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends OrchestraTestCase
 {
     protected const TABLE_NAME_SIMPLE                = 'test_simple_models';
     protected const TABLE_NAME_EXTENDED              = 'test_extended_models';
@@ -53,8 +55,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function migrateDatabase(): void
     {
-        // model we can test anything but translations with
-        Schema::create(self::TABLE_NAME_SIMPLE, function ($table) {
+        // Model we can test anything but translations with.
+        Schema::create(self::TABLE_NAME_SIMPLE, function (Blueprint $table): void {
             $table->increments('id');
             $table->string('unique_field', 20);
             $table->integer('second_field')->unsigned()->nullable();
@@ -64,8 +66,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->timestamps();
         });
 
-        // model we can also test translations with
-        Schema::create(self::TABLE_NAME_EXTENDED, function ($table) {
+        // Model we can also test translations with.
+        Schema::create(self::TABLE_NAME_EXTENDED, function (Blueprint $table): void {
             $table->increments('id');
             $table->string('unique_field', 20);
             $table->integer('second_field')->unsigned()->nullable();
@@ -76,7 +78,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->timestamps();
         });
 
-        Schema::create(self::TABLE_NAME_EXTENDED_TRANSLATIONS, function ($table) {
+        Schema::create(self::TABLE_NAME_EXTENDED_TRANSLATIONS, function (Blueprint $table): void {
             $table->increments('id');
             $table->integer('test_extended_model_id')->unsigned();
             $table->string('locale', 12);

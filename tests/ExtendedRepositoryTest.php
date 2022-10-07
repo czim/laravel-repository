@@ -58,77 +58,78 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_does_not_retrieve_inactive_files_and_uses_cache_by_default()
+    public function it_does_not_retrieve_inactive_files_and_uses_cache_by_default(): void
     {
-        $this->assertTrue($this->repository->isCacheEnabled(), "Cache marked disabled");
-        $this->assertFalse($this->repository->isInactiveIncluded(), "Inactive marked as included");
+        static::assertTrue($this->repository->isCacheEnabled(), 'Cache marked disabled');
+        static::assertFalse($this->repository->isInactiveIncluded(), 'Inactive marked as included');
 
-        // test if without maintenance mode, only active records are returned
-        $this->assertCount(2, $this->repository->all());
-        $this->assertEquals(2, $this->repository->count(), "count() value does not match all() count!");
+        // Test if without maintenance mode, only active records are returned.
+        static::assertCount(2, $this->repository->all());
+        static::assertEquals(2, $this->repository->count(), 'count() value does not match all() count!');
 
-        // set cache by looking up a record
+        // Set cache by looking up a record.
         $this->repository->findBy(self::UNIQUE_FIELD, '999');
 
-        // change the record without busting the cache
-        $this->app['db']->table(static::TABLE_NAME)
-                        ->where(self::UNIQUE_FIELD, '999')
-                        ->update([ 'name' => 'changed!' ]);
+        // Change the record without busting the cache.
+        $this->app['db']
+            ->table(static::TABLE_NAME)
+            ->where(self::UNIQUE_FIELD, '999')
+            ->update([ 'name' => 'changed!' ]);
 
-        // if the change registered, the cache didn't work
+        // If the change registered, the cache didn't work.
         $check = $this->repository->findBy(self::UNIQUE_FIELD, '999');
-        $this->assertEquals('unchanged', $check->name, "Cache did not apply, changes are seen instantly");
+        static::assertEquals('unchanged', $check->name, 'Cache did not apply, changes are seen instantly');
     }
 
     /**
      * @test
      * @depends it_does_not_retrieve_inactive_files_and_uses_cache_by_default
      */
-    public function it_retrieves_inactive_files_and_does_not_cache_in_maintenance_mode()
+    public function it_retrieves_inactive_files_and_does_not_cache_in_maintenance_mode(): void
     {
         $this->repository->maintenance();
 
-        $this->assertFalse($this->repository->isCacheEnabled(), "Cache not marked disabled");
-        $this->assertTrue($this->repository->isInactiveIncluded(), "Inactive not marked as included");
+        static::assertFalse($this->repository->isCacheEnabled(), 'Cache not marked disabled');
+        static::assertTrue($this->repository->isInactiveIncluded(), 'Inactive not marked as included');
 
-        // test if now inactive records are returned
-        $this->assertCount(3, $this->repository->all(), "Incorrect count for total in maintenance mode");
+        // Test if now inactive records are returned.
+        static::assertCount(3, $this->repository->all(), 'Incorrect count for total in maintenance mode');
 
-        // set cache by looking up a record
+        // Set cache by looking up a record.
         $this->repository->findBy(self::UNIQUE_FIELD, '999');
 
-        // change the record without busting the cache
+        // Change the record without busting the cache.
         $this->app['db']->table(static::TABLE_NAME)
-                        ->where(self::UNIQUE_FIELD, '999')
-                        ->update([ 'name' => 'changed!' ]);
+            ->where(self::UNIQUE_FIELD, '999')
+            ->update([ 'name' => 'changed!' ]);
 
-        // if the change registered, the cache didn't work
+        // If the change registered, the cache didn't work.
         $check = $this->repository->findBy(self::UNIQUE_FIELD, '999');
-        $this->assertEquals('changed!', $check->name, "Result was still cached, could not see change");
+        static::assertEquals('changed!', $check->name, 'Result was still cached, could not see change');
     }
 
     /**
      * @test
      */
-    public function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries()
+    public function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries(): void
     {
-        // add a scope that will limit the result to 1 record
-        // the Supplier model has a test-scope especially for this
+        // Add a scope that will limit the result to 1 record.
+        // The Supplier model has a test-scope especially for this.
         $this->repository->addScope('moreTesting', [self::UNIQUE_FIELD, '1337']);
-        $this->assertEquals(1, $this->repository->count(), "Wrong result count after setting scope");
-        $this->assertCount(1, $this->repository->all());
+        static::assertEquals(1, $this->repository->count(), 'Wrong result count after setting scope');
+        static::assertCount(1, $this->repository->all());
 
-        // remove scope by name and check count
+        // Remove scope by name and check count.
         $this->repository->removeScope('moreTesting');
-        $this->assertEquals(2, $this->repository->count(), "Wrong result count after removing scope by name");
+        static::assertEquals(2, $this->repository->count(), 'Wrong result count after removing scope by name');
 
-        // set single result scope again, see if it still works
+        // Set single result scope again, see if it still works.
         $this->repository->addScope('moreTesting', [self::UNIQUE_FIELD, '1337']);
-        $this->assertEquals(1, $this->repository->count());
+        static::assertEquals(1, $this->repository->count());
 
-        // clear all scopes and check total again
+        // Clear all scopes and check total again.
         $this->repository->clearScopes();
-        $this->assertEquals(2, $this->repository->count(), "Wrong result count after clearing all scopes");
+        static::assertEquals(2, $this->repository->count(), 'Wrong result count after clearing all scopes');
     }
 
     // --------------------------------------------
@@ -138,16 +139,17 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_uses_default_criteria_when_not_configured_not_to()
+    public function it_uses_default_criteria_when_not_configured_not_to(): void
     {
-        // by default, the defaultCriteria() should be loaded
-        $this->assertTrue(
+        // By default, the defaultCriteria() should be loaded.
+        static::assertTrue(
             $this->repository->defaultCriteria()->has('TestDefault'),
-            "Default Criteria should include TestDefault"
+            'Default Criteria should include TestDefault'
         );
-        $this->assertTrue(
+
+        static::assertTrue(
             $this->repository->getCriteria()->has('TestDefault'),
-            "Default Criteria should be in loaded getCriteria() list"
+            'Default Criteria should be in loaded getCriteria() list'
         );
     }
 
@@ -155,52 +157,50 @@ class ExtendedRepositoryTest extends TestCase
      * @test
      * @depends it_uses_default_criteria_when_not_configured_not_to
      */
-    public function it_reapplies_criteria_only_when_changes_to_criteria_are_made()
+    public function it_reapplies_criteria_only_when_changes_to_criteria_are_made(): void
     {
-        // the idea is that a repository efficiently applies criteria,
-        // leaving a query state behind that it can re-use without rebuilding
-        // it, unless it MUST be rebuilt.
+        // The idea is that a repository efficiently applies criteria, leaving a query state behind that
+        // it can re-use without rebuilding it, unless it MUST be rebuilt.
 
-        // it must be rebuilt when
-        //   the first call the the repository is made
-        //   new criteria are pushed, criteria are removed or cleared
-        //   when criteria are pushed or removed 'once'
-        //   when settings have changed on the repository (cache, active, scopes)
+        // It must be rebuilt when ...
+        //   ... the first call the the repository is made.
+        //   ... new criteria are pushed, criteria are removed or cleared.
+        //   ... when criteria are pushed or removed 'once'.
+        //   ... when settings have changed on the repository (cache, active, scopes).
 
-        // create spy Criteria to check how many times we apply the criteria
+        // Create spy Criteria to check how many times we apply the criteria.
         $mockCriteria = $this->makeMockCriteria(6);
         $this->repository->pushCriteria($mockCriteria);
 
-        // first call, should apply +1
+        // First call, should apply +1.
         $this->repository->count();
 
-        // call without changes, should not apply
+        // Call without changes, should not apply.
         $this->repository->count();
 
-        // call after changing setting +1
+        // Call after changing setting +1.
         $this->repository->disableCache();
         $this->repository->count();
 
-        // call after changing setting +1
+        // Call after changing setting +1.
         $this->repository->clearScopes();
         $this->repository->count();
 
-        // call after pushing new criteria +1
+        // Call after pushing new criteria +1.
         $mockCriteriaTwo = $this->makeMockCriteria('twice');
         $this->repository->pushCriteria($mockCriteriaTwo, 'MockTwo');
         $this->repository->count();
 
-        // call with once-criteria set +1 (and +1 for mock Two)
+        // Call with once-criteria set +1 (and +1 for mock Two).
         $mockOnce = $this->makeMockCriteria('once');
         $this->repository->pushCriteriaOnce($mockOnce);
         $this->repository->count();
 
-        // call with criteria removed set +1
-        // but the oncemock is not-re-applied, so that's still only called 1 time!
+        // Call with criteria removed set +1, but the oncemock is not-re-applied, so that's still only called 1 time!
         $this->repository->removeCriteria('MockTwo');
         $this->repository->count();
 
-        // call with once-criteria removed if it does not exist should not make a difference
+        // Call with once-criteria removed if it does not exist should not make a difference.
         $this->repository->removeCriteriaOnce('KeyDoesNotExist');
         $this->repository->count();
     }
@@ -213,20 +213,25 @@ class ExtendedRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_the_active_state_of_a_record()
+    public function it_updates_the_active_state_of_a_record(): void
     {
         $this->repository->maintenance();
 
         $modelId = $this->repository->findBy(self::UNIQUE_FIELD, '1337')->id;
-        $this->assertNotEmpty($modelId, "Test Model not found");
+        static::assertNotEmpty($modelId, 'Test Model not found');
 
-        // set to inactive
+        // Set to inactive.
         $this->repository->activateRecord($modelId, false);
-        $this->assertFalse($this->repository->findBy(self::UNIQUE_FIELD, '1337')->active, "Model deactivation didn't persist");
+        static::assertFalse(
+            $this->repository->findBy(self::UNIQUE_FIELD, '1337')->active,
+            "Model deactivation didn't persist"
+        );
 
-        // set to active again
+        // Set to active again.
         $this->repository->activateRecord($modelId);
-        $this->assertTrue($this->repository->findBy(self::UNIQUE_FIELD, '1337')->active, "Model re-activation didn't persist");
+        static::assertTrue(
+            $this->repository->findBy(self::UNIQUE_FIELD, '1337')->active,
+            "Model re-activation didn't persist"
+        );
     }
-
 }

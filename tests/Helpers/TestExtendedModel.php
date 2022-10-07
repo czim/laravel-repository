@@ -54,22 +54,25 @@ class TestExtendedModel extends Model
     ];
 
     /**
-     * @param Model|EloquentBuilder|BaseBuilder $query
+     * @param self|EloquentBuilder<self>|BaseBuilder $query
      * @return EloquentBuilder|BaseBuilder
      */
-    public function scopeTesting($query): EloquentBuilder|BaseBuilder
+    public function scopeTesting(self|EloquentBuilder|BaseBuilder $query): EloquentBuilder|BaseBuilder
     {
         return $query->whereNotNull('second_field');
     }
 
     /**
-     * @param Model|EloquentBuilder|BaseBuilder $query
-     * @param string                            $field
-     * @param mixed                             $value
+     * @param self|EloquentBuilder<self>|BaseBuilder $query
+     * @param string                                 $field
+     * @param mixed                                  $value
      * @return EloquentBuilder|BaseBuilder
      */
-    public function scopeMoreTesting($query, string $field, mixed $value): EloquentBuilder|BaseBuilder
-    {
+    public function scopeMoreTesting(
+        self|EloquentBuilder|BaseBuilder $query,
+        string $field,
+        mixed $value,
+    ): EloquentBuilder|BaseBuilder {
         return $query->where($field, $value);
     }
 }

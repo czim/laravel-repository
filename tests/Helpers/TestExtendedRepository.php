@@ -52,5 +52,3 @@ class TestExtendedRepository extends ExtendedRepository
         ]);
     }
 }
-
-

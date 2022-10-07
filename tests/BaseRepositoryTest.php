@@ -62,35 +62,43 @@ class BaseRepositoryTest extends TestCase
     {
         // all
         $result = $this->repository->all();
-        $this->assertInstanceOf(Collection::class, $result, "Did not get Collection for all()");
-        $this->assertCount(3, $result, "Did not get correct count for all()");
+        static::assertInstanceOf(Collection::class, $result, 'Did not get Collection for all()');
+        static::assertCount(3, $result, 'Did not get correct count for all()');
 
         // get an id that we can use find on
         $someId = $result->first()->id;
-        $this->assertNotEmpty($someId, "Did not get a valid Model's id from the all() result");
+        static::assertNotEmpty($someId, "Did not get a valid Model's id from the all() result");
 
         // find
-        $this->assertInstanceOf(Model::class, $this->repository->find($someId), "Did not get Model for find()");
+        static::assertInstanceOf(Model::class, $this->repository->find($someId), 'Did not get Model for find()');
 
         // count
-        $this->assertEquals(3, $this->repository->count(), "Did not get correct result for count()");
+        static::assertEquals(3, $this->repository->count(), 'Did not get correct result for count()');
 
         // first
-        $this->assertInstanceOf(Model::class, $this->repository->first(), "Did not get Model for first() on all");
+        static::assertInstanceOf(Model::class, $this->repository->first(), 'Did not get Model for first() on all');
 
         // findBy
-        $this->assertInstanceOf(Model::class, $this->repository->findBy(self::UNIQUE_FIELD, '1337'), "Did not get Model for findBy() for unique field value");
+        static::assertInstanceOf(
+            Model::class,
+            $this->repository->findBy(self::UNIQUE_FIELD, '1337'),
+            'Did not get Model for findBy() for unique field value'
+        );
 
         // findAllBy
-        $this->assertCount(2, $this->repository->findAllBy('active', true), "Did not get correct count for result for findAllBy(active = true)");
+        static::assertCount(
+            2,
+            $this->repository->findAllBy('active', true),
+            'Did not get correct count for result for findAllBy(active = true)'
+        );
 
         // paginate
-        $this->assertCount(2, $this->repository->paginate(2), "Did not get correct count for paginate()");
+        static::assertCount(2, $this->repository->paginate(2), 'Did not get correct count for paginate()');
 
         // pluck
         $list = $this->repository->pluck(self::UNIQUE_FIELD);
-        $this->assertCount(3, $list, "Did not get correct array count for lists()");
-        $this->assertContains('1337', $list, "Did not get correct array content for lists()");
+        static::assertCount(3, $list, 'Did not get correct array count for lists()');
+        static::assertContains('1337', $list, 'Did not get correct array content for lists()');
     }
 
     /**
@@ -100,16 +108,16 @@ class BaseRepositoryTest extends TestCase
     {
         $attributes = [
             self::UNIQUE_FIELD => 'unique_field_value',
-            self::SECOND_FIELD => 'second_field_value'
+            self::SECOND_FIELD => 'second_field_value',
         ];
 
         $model = $this->repository->make($attributes);
 
-        // asserting that only the desired attributes got filled and are the same
-        $this->assertEquals($attributes, $model->getDirty());
+        // Asserting that only the desired attributes got filled and are the same.
+        static::assertEquals($attributes, $model->getDirty());
 
-        // asserting the the model had its attributes filled without being persisted
-        $this->assertEquals(0, $this->repository->findWhere($attributes)->count());
+        // Asserting the the model had its attributes filled without being persisted.
+        static::assertEquals(0, $this->repository->findWhere($attributes)->count());
     }
 
     /**
@@ -129,7 +137,7 @@ class BaseRepositoryTest extends TestCase
     {
         $this->expectException(ModelNotFoundException::class);
 
-        // make sure we won't find anything
+        // Make sure we won't find anything.
         $mockCriteria = $this->makeMockCriteria(
             'once',
             fn ($query) => $query->where('name', 'some name that certainly does not exist')
@@ -140,48 +148,51 @@ class BaseRepositoryTest extends TestCase
     }
 
     /**
-     * Bosnadev's findWhere() method
+     * Bosnadev's findWhere() method.
+     *
      * @test
      */
     public function it_can_perform_a_findwhere_with_custom_parameters(): void
     {
-        // simple field/value combo's by key
-        $this->assertCount(
+        // Simple field/value combo's by key
+        static::assertCount(
             1,
             $this->repository->findWhere([
                 self::UNIQUE_FIELD => '1234567',
                 self::SECOND_FIELD => '434',
             ]),
-            "findWhere() with field/value combo failed (incorrect match count)"
+            'findWhere() with field/value combo failed (incorrect match count)'
         );
 
-        // arrays with field/value sets
-        $this->assertCount(
+        // Arrays with field/value sets
+        static::assertCount(
             1,
             $this->repository->findWhere([
-                [ self::UNIQUE_FIELD, '1234567' ],
-                [ self::SECOND_FIELD, '434' ],
+                [self::UNIQUE_FIELD, '1234567'],
+                [self::SECOND_FIELD, '434'],
             ]),
-            "findWhere() with field/value sets failed (incorrect match count)"
+            'findWhere() with field/value sets failed (incorrect match count)'
         );
 
-        // arrays with field/operator/value sets
-        $this->assertCount(
+        // Arrays with field/operator/value sets
+        static::assertCount(
             1,
             $this->repository->findWhere([
-                [ self::UNIQUE_FIELD, 'LIKE', '%234567' ],
-                [ self::SECOND_FIELD, 'LIKE', '43%' ],
+                [self::UNIQUE_FIELD, 'LIKE', '%234567'],
+                [self::SECOND_FIELD, 'LIKE', '43%'],
             ]),
-            "findWhere() with field/operator/value sets failed (incorrect match count)"
+            'findWhere() with field/operator/value sets failed (incorrect match count)'
         );
 
-        // closure send directly to the model's where() method
-        $this->assertCount(
+        // Closure send directly to the model's where() method
+        static::assertCount(
             1,
-            $this->repository->findWhere([ function($query) {
-                return $query->where(self::UNIQUE_FIELD, 'LIKE', '%234567');
-            }]),
-            "findWhere() with Closure callback failed (incorrect match count)"
+            $this->repository->findWhere([
+                function ($query) {
+                    return $query->where(self::UNIQUE_FIELD, 'LIKE', '%234567');
+                },
+            ]),
+            'findWhere() with Closure callback failed (incorrect match count)'
         );
     }
 
@@ -191,17 +202,17 @@ class BaseRepositoryTest extends TestCase
     public function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries(): void
     {
         // allCallback
-        $result = $this->repository->allCallback( function($query) {
+        $result = $this->repository->allCallback(function ($query) {
             return $query->where(self::UNIQUE_FIELD, '1337');
         });
-        $this->assertCount(1, $result, "Wrong count for allCallback()");
+        static::assertCount(1, $result, 'Wrong count for allCallback()');
 
 
         // findCallback
-        $result = $this->repository->findCallback( function($query) {
+        $result = $this->repository->findCallback(function ($query) {
             return $query->where(self::UNIQUE_FIELD, '1337');
         });
-        $this->assertEquals('1337', $result->{self::UNIQUE_FIELD}, "Wrong result for findCallback()");
+        static::assertEquals('1337', $result->{self::UNIQUE_FIELD}, 'Wrong result for findCallback()');
     }
 
     /**
@@ -211,7 +222,7 @@ class BaseRepositoryTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->repository->allCallback( function() {
+        $this->repository->allCallback(function () {
             return 'incorrect return value';
         });
     }
@@ -227,26 +238,32 @@ class BaseRepositoryTest extends TestCase
      */
     public function it_handles_basic_manipulation_operations(): void
     {
-        // update existing
+        // Update existing
         $someId = $this->repository->findBy(self::UNIQUE_FIELD, '999')->id;
-        $this->assertNotEmpty($someId, "Did not get a valid Model's id from the findBy(unique_field) result");
-        $this->repository->update([ 'name' => 'changed it!' ], $someId);
-        $this->assertEquals('changed it!', $this->repository->findBy(self::UNIQUE_FIELD, '999')->name, "Change did not apply after update()");
+        static::assertNotEmpty($someId, "Did not get a valid Model's id from the findBy(unique_field) result");
+        $this->repository->update(['name' => 'changed it!'], $someId);
+        static::assertEquals(
+            'changed it!',
+            $this->repository->findBy(self::UNIQUE_FIELD, '999')->name,
+            'Change did not apply after update()'
+        );
 
-        // create new
+        // Create new
         $model = $this->repository->create([
             self::UNIQUE_FIELD => '313',
             'name'             => 'New Model',
         ]);
-        $this->assertInstanceOf(Model::class, $model, "Create() response is not a Model");
-        $this->assertNotEmpty($model->id, "Model does not have an id (likely story)");
-        $this->assertDatabaseHas(static::TABLE_NAME, [ 'id' => $model->id, self::UNIQUE_FIELD => '313', 'name' => 'New Model' ]);
-        $this->assertEquals(4, $this->repository->count(), "Total count after creating new does not match");
+        static::assertInstanceOf(Model::class, $model, 'Create() response is not a Model');
+        static::assertNotEmpty($model->id, 'Model does not have an id (likely story)');
+        static::assertDatabaseHas(static::TABLE_NAME, ['id'   => $model->id, self::UNIQUE_FIELD => '313',
+                                                      'name' => 'New Model',
+        ]);
+        static::assertEquals(4, $this->repository->count(), 'Total count after creating new does not match');
 
-        // delete
-        $this->assertEquals(1, $this->repository->delete($model->id), "Delete() call did not return succesful count");
-        $this->assertEquals(3, $this->repository->count(), "Total count after deleting does not match");
-        $this->assertDatabaseMissing(static::TABLE_NAME, [ 'id' => $model->id ]);
+        // Delete
+        static::assertEquals(1, $this->repository->delete($model->id), 'Delete() call did not return succesful count');
+        static::assertEquals(3, $this->repository->count(), 'Total count after deleting does not match');
+        static::assertDatabaseMissing(static::TABLE_NAME, ['id' => $model->id]);
         unset($model);
     }
 
@@ -259,13 +276,13 @@ class BaseRepositoryTest extends TestCase
 
         $attributes = [
             self::UNIQUE_FIELD => 'unique_field_value',
-            self::SECOND_FIELD => 'second_field_value'
+            self::SECOND_FIELD => 'second_field_value',
         ];
 
         $filledModel = $this->repository->fill($attributes, $persistedModel->id);
 
-        $this->assertEquals($filledModel->getDirty(), $attributes);
-        $this->assertDatabaseMissing(static::TABLE_NAME, $attributes);
+        static::assertEquals($filledModel->getDirty(), $attributes);
+        static::assertDatabaseMissing(static::TABLE_NAME, $attributes);
     }
 
 
@@ -278,13 +295,20 @@ class BaseRepositoryTest extends TestCase
      */
     public function it_returns_and_can_restore_default_criteria(): void
     {
-        $this->assertTrue($this->repository->defaultCriteria()->isEmpty(), "Defaultcriteria is not empty");
+        static::assertTrue($this->repository->defaultCriteria()->isEmpty(), 'Defaultcriteria is not empty');
 
         $this->repository->pushCriteria($this->makeMockCriteria('never'));
-        $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
+        static::assertCount(
+            1,
+            $this->repository->getCriteria(),
+            'getCriteria() count incorrect after pushing new Criteria'
+        );
 
         $this->repository->restoreDefaultCriteria();
-        $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty after restoring default Criteria()");
+        static::assertTrue(
+            $this->repository->getCriteria()->isEmpty(),
+            'getCriteria() not empty after restoring default Criteria()'
+        );
     }
 
     /**
@@ -293,51 +317,62 @@ class BaseRepositoryTest extends TestCase
      */
     public function it_takes_criteria_and_handles_basic_criteria_manipulation(): void
     {
-        // clear all criteria, see if none are applied
+        // Clear all criteria, see if none are applied.
         $this->repository->clearCriteria();
-        $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty after clearCriteria()");
-        $this->assertMatchesRegularExpression(
-            "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
+        static::assertTrue(
+            $this->repository->getCriteria()->isEmpty(),
+            'getCriteria() not empty after clearCriteria()'
+        );
+        static::assertMatchesRegularExpression(
+            "#^select \* from [`\"]" . static::TABLE_NAME . '[`\"]$#i',
             $this->repository->query()->toSql(),
-            "Query SQL should be totally basic after clearCriteria()"
+            'Query SQL should be totally basic after clearCriteria()'
         );
 
 
-        // add new criteria, see if it is applied
+        // Add new criteria, see if it is applied.
         $criteria = $this->makeMockCriteria('twice', fn ($query) => $query->where(self::UNIQUE_FIELD, '1337'));
         $this->repository->pushCriteria($criteria, 'TemporaryCriteria');
-        $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() count incorrect after pushing new Criteria");
-
-        $this->assertMatchesRegularExpression(
-            "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
-            $this->repository->query()->toSql(),
-            "Query SQL should be altered by pushing Criteria"
+        static::assertCount(
+            1,
+            $this->repository->getCriteria(),
+            'getCriteria() count incorrect after pushing new Criteria'
         );
 
-        // set repository to ignore criteria, see if they do not get applied
+        static::assertMatchesRegularExpression(
+            '#where [`"]' . self::UNIQUE_FIELD . '[`"] =#i',
+            $this->repository->query()->toSql(),
+            'Query SQL should be altered by pushing Criteria'
+        );
+
+        // Set repository to ignore criteria, see if they do not get applied.
         $this->repository->ignoreCriteria();
 
-        $this->assertDoesNotMatchRegularExpression(
-            "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
+        static::assertDoesNotMatchRegularExpression(
+            '#where [`\"]' . self::UNIQUE_FIELD . '[`\"] =#i',
             $this->repository->query()->toSql(),
-            "Query SQL should be altered by pushing Criteria"
+            'Query SQL should be altered by pushing Criteria'
         );
 
         $this->repository->ignoreCriteria(false);
 
 
-        // remove criteria once, see if it is not applied
+        // Remove criteria once, see if it is not applied.
         $this->repository->removeCriteriaOnce('TemporaryCriteria');
-        $this->assertCount(1, $this->repository->getCriteria(), "getCriteria() should still have a count of one if only removing temporarily");
-        $this->assertMatchesRegularExpression(
-            "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
-            $this->repository->query()->toSql(),
-            "Query SQL should be totally basic while removing Criteria once"
+        static::assertCount(
+            1,
+            $this->repository->getCriteria(),
+            'getCriteria() should still have a count of one if only removing temporarily'
         );
-        $this->assertMatchesRegularExpression(
-            "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
+        static::assertMatchesRegularExpression(
+            "#^select \* from [`\"]" . static::TABLE_NAME . '[`\"]$#i',
             $this->repository->query()->toSql(),
-            "Query SQL should be altered again on next call after removing Criteria once"
+            'Query SQL should be totally basic while removing Criteria once'
+        );
+        static::assertMatchesRegularExpression(
+            '#where [`\"]' . self::UNIQUE_FIELD . '[`\"] =#i',
+            $this->repository->query()->toSql(),
+            'Query SQL should be altered again on next call after removing Criteria once'
         );
 
 
@@ -345,37 +380,42 @@ class BaseRepositoryTest extends TestCase
         $secondCriteria = $this->makeMockCriteria('once', fn ($query) => $query->where(self::SECOND_FIELD, '12345'));
         $this->repository->pushCriteriaOnce($secondCriteria, 'TemporaryCriteria');
         $sql = $this->repository->query()->toSql();
-        $this->assertDoesNotMatchRegularExpression(
-            "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
+        static::assertDoesNotMatchRegularExpression(
+            '#where [`\"]' . self::UNIQUE_FIELD . '[`\"] =#i',
             $sql,
-            "Query SQL should not be built using first TemporaryCriteria"
+            'Query SQL should not be built using first TemporaryCriteria'
         );
-        $this->assertMatchesRegularExpression(
-            "#where [`\"]" . self::SECOND_FIELD . "[`\"] =#i",
+        static::assertMatchesRegularExpression(
+            '#where [`\"]' . self::SECOND_FIELD . '[`\"] =#i',
             $sql,
-            "Query SQL should be built using the overriding Criteria"
+            'Query SQL should be built using the overriding Criteria'
         );
 
 
         // remove specific criteria, see if it is not applied
         $this->repository->removeCriteria('TemporaryCriteria');
-        $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty after removing Criteria");
-        $this->assertMatchesRegularExpression(
-            "#^select \* from [`\"]" . static::TABLE_NAME ."[`\"]$#i",
+        static::assertTrue(
+            $this->repository->getCriteria()->isEmpty(),
+            'getCriteria() not empty after removing Criteria'
+        );
+        static::assertMatchesRegularExpression(
+            "#^select \* from [`\"]" . static::TABLE_NAME . '[`\"]$#i',
             $this->repository->query()->toSql(),
-            "Query SQL should be totally basic after removing Criteria"
+            'Query SQL should be totally basic after removing Criteria'
         );
 
 
         // override criteria once, see if it is changed
         $criteria = $this->makeMockCriteria('once', fn ($query) => $query->where(self::UNIQUE_FIELD, '1337'));
         $this->repository->pushCriteriaOnce($criteria);
-        $this->assertTrue($this->repository->getCriteria()->isEmpty(), "getCriteria() not empty with only once Criteria pushed");
-        $this->assertMatchesRegularExpression(
-            "#where [`\"]" . self::UNIQUE_FIELD . "[`\"] =#i",
+        static::assertTrue(
+            $this->repository->getCriteria()->isEmpty(),
+            'getCriteria() not empty with only once Criteria pushed'
+        );
+        static::assertMatchesRegularExpression(
+            '#where [`\"]' . self::UNIQUE_FIELD . '[`\"] =#i',
             $this->repository->query()->toSql(),
-            "Query SQL should be altered by pushing Criteria once"
+            'Query SQL should be altered by pushing Criteria once'
         );
     }
-
 }

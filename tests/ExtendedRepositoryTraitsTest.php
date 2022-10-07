@@ -50,7 +50,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
             'hidden'       => 'where has it gone?',
         ]);
 
-        // set some translations
+        // Set some translations.
         $testModel->translateOrNew('nl')->translated_string = 'vertaalde_attribuutwaarde hoepla';
         $testModel->translateOrNew('en')->translated_string = 'translated_attribute_value hoopla';
         $testModel->save();
@@ -66,37 +66,37 @@ class ExtendedRepositoryTraitsTest extends TestCase
      */
     public function it_finds_records_by_translated_attribute_value(): void
     {
-        // finds by translation exact
-        $this->assertInstanceOf(
+        // Finds by translation exact.
+        static::assertInstanceOf(
             TestExtendedModel::class,
             $this->repository->findByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla', 'nl'),
-            "Did not find exact match for find"
+            'Did not find exact match for find'
         );
-        $this->assertNotInstanceOf(
+        static::assertNotInstanceOf(
             TestExtendedModel::class,
             $this->repository->findByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla', 'en'),
-            "Should not have found match for different locale"
+            'Should not have found match for different locale'
         );
-        // finds by translation LIKE
-        $this->assertInstanceOf(
+
+        // Finds by translation LIKE.
+        static::assertInstanceOf(
             TestExtendedModel::class,
             $this->repository->findByTranslation(self::TRANSLATED_FIELD, '%attribuutwaarde hoe%', 'nl', false),
-            "Did not find loosy match for find"
+            'Did not find loosy match for find'
         );
 
-        // finds ALL by translation exact
-        $this->assertCount(
+        // Finds ALL by translation exact.
+        static::assertCount(
             1,
             $this->repository->findAllByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla', 'nl'),
-            "Incorrect count with exact match for all"
+            'Incorrect count with exact match for all'
         );
 
-        // finds ALL by translation LIKE
-        // also check if we don't get duplicates for multiple hits
-        $this->assertCount(
+        // Finds ALL by translation LIKE. Also check if we don't get duplicates for multiple hits.
+        static::assertCount(
             1,
             $this->repository->findAllByTranslation(self::TRANSLATED_FIELD, '%vertaalde_attribuutwaarde%', 'nl', false),
-            "Incorrect count with loosy match for all"
+            'Incorrect count with loosy match for all'
         );
     }
 
@@ -110,19 +110,27 @@ class ExtendedRepositoryTraitsTest extends TestCase
      */
     public function it_creates_new_records_with_position_handled_by_listify(): void
     {
-        // the Supplier model must have Listify set for this
+        // The Supplier model must have Listify set for this.
         $this->repository->maintenance();
 
-        // get the highest position value in the database
+        // Get the highest position value in the database.
         $highestPosition = $this->app['db']->table(static::TABLE_NAME)->max('position');
-        $this->assertGreaterThan(0, $highestPosition, "Position value before testing not usable. Is Listify working/used?");
+        static::assertGreaterThan(
+            0,
+            $highestPosition,
+            'Position value before testing not usable. Is Listify working/used?'
+        );
 
         $newModel = $this->repository->create([
             'unique_field' => 'NEWPOSITION',
             'name'         => 'TestNew',
         ]);
 
-        $this->assertEquals($highestPosition + 1, $newModel->position, "New position should be highest position before + 1");
+        static::assertEquals(
+            $highestPosition + 1,
+            $newModel->position,
+            'New position should be highest position before + 1'
+        );
     }
 
     /**
@@ -134,16 +142,32 @@ class ExtendedRepositoryTraitsTest extends TestCase
     {
         $this->repository->maintenance();
 
-        // check starting situation
+        // Check starting situation.
         $changeModel = $this->repository->findBy(self::UNIQUE_FIELD, '1337');
-        $this->assertEquals(1, $this->repository->findBy(self::UNIQUE_FIELD, '999')->position, "Starting position for record (999) is incorrect");
-        $this->assertEquals(3, $changeModel->position, "Starting position for record (1337) is incorrect");
+        static::assertEquals(
+            1,
+            $this->repository->findBy(self::UNIQUE_FIELD, '999')->position,
+            'Starting position for record (999) is incorrect'
+        );
+        static::assertEquals(
+            3,
+            $changeModel->position,
+            'Starting position for record (1337) is incorrect'
+        );
 
-        // update the position of the last added entry
+        // Update the position of the last added entry.
         $this->repository->updatePosition($changeModel->id, 1);
 
-        // check final positions after update
-        $this->assertEquals(2, $this->repository->findBy(self::UNIQUE_FIELD, '999')->position, "Final position for record (999) is incorrect");
-        $this->assertEquals(1, $this->repository->findBy(self::UNIQUE_FIELD, '1337')->position, "Final position for moved record (1337) is incorrect");
+        // Check final positions after update.
+        static::assertEquals(
+            2,
+            $this->repository->findBy(self::UNIQUE_FIELD, '999')->position,
+            'Final position for record (999) is incorrect'
+        );
+        static::assertEquals(
+            1,
+            $this->repository->findBy(self::UNIQUE_FIELD, '1337')->position,
+            'Final position for moved record (1337) is incorrect'
+        );
     }
 }

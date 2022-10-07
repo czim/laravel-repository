@@ -58,7 +58,7 @@ class CommonCriteriaTest extends TestCase
             'active'       => true,
         ]);
 
-        // set some translations
+        // Set some translations.
         $testModel->translateOrNew('nl')->translated_string = 'vertaalde_attribuutwaarde hoepla';
         $testModel->translateOrNew('en')->translated_string = 'translated_attribute_value hoopla';
         $testModel->save();
@@ -72,7 +72,7 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new FieldIsValue('name', 'special name'));
 
-        $this->assertCount(1, $this->repository->all(), "FieldIsValue Criteria doesn't work");
+        static::assertCount(1, $this->repository->all(), "FieldIsValue Criteria doesn't work");
     }
 
     /**
@@ -82,13 +82,19 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new Has('translations', '>', 1));
 
-        $this->assertCount(1, $this->repository->all(), "Has Criteria simple use fails");
+        static::assertCount(1, $this->repository->all(), 'Has Criteria simple use fails');
 
-        $this->repository->pushCriteria(new Has('translations', '=', 1, 'and', function($query) {
-            return $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla');
-        }));
+        $this->repository->pushCriteria(
+            new Has(
+                'translations',
+                '=',
+                1,
+                'and',
+                fn ($query) => $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla')
+            )
+        );
 
-        $this->assertCount(1, $this->repository->all(), "Has Criteria use with callback fails");
+        static::assertCount(1, $this->repository->all(), 'Has Criteria use with callback fails');
     }
 
     /**
@@ -98,7 +104,7 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new IsActive('active'));
 
-        $this->assertCount(2, $this->repository->all(), "IsActive Criteria doesn't work");
+        static::assertCount(2, $this->repository->all(), "IsActive Criteria doesn't work");
     }
 
     /**
@@ -108,7 +114,7 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new OrderBy('position', 'desc'));
 
-        $this->assertEquals([3, 2, 1], $this->repository->pluck('position')->all(), "OrderBy Criteria doesn't work");
+        static::assertEquals([3, 2, 1], $this->repository->pluck('position')->all(), "OrderBy Criteria doesn't work");
     }
 
     /**
@@ -118,11 +124,11 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::SCOPE);
 
-        $this->assertCount(2, $this->repository->all(), "Scope Criteria without parameters doesn't work");
+        static::assertCount(2, $this->repository->all(), "Scope Criteria without parameters doesn't work");
 
-        $this->repository->pushCriteria(new Scope('moreTesting', [ self::SECOND_FIELD, '434' ]), CriteriaKey::SCOPE);
+        $this->repository->pushCriteria(new Scope('moreTesting', [self::SECOND_FIELD, '434']), CriteriaKey::SCOPE);
 
-        $this->assertCount(1, $this->repository->all(), "Scope Criteria with parameter doesn't work");
+        static::assertCount(1, $this->repository->all(), "Scope Criteria with parameter doesn't work");
     }
 
     /**
@@ -132,17 +138,25 @@ class CommonCriteriaTest extends TestCase
     {
         $this->repository->pushCriteria(new Scopes([
             'testing',
-            'moreTesting' => [ 'active', false ],
+            'moreTesting' => ['active', false],
         ]), CriteriaKey::SCOPE);
 
-        $this->assertCount(1, $this->repository->all(), "Multiple Scopes Criteria doesn't work (value & key => value)");
+        static::assertCount(
+            1,
+            $this->repository->all(),
+            "Multiple Scopes Criteria doesn't work (value & key => value)"
+        );
 
         $this->repository->pushCriteria(new Scopes([
-            [ 'testing' ],
-            [ 'moreTesting', [ 'active', false ] ],
+            ['testing'],
+            ['moreTesting', ['active', false]],
         ]), CriteriaKey::SCOPE);
 
-        $this->assertCount(1, $this->repository->all(), "Multiple Scopes Criteria doesn't work (array sets, no keys)");
+        static::assertCount(
+            1,
+            $this->repository->all(),
+            "Multiple Scopes Criteria doesn't work (array sets, no keys)"
+        );
     }
 
     /**
@@ -150,30 +164,37 @@ class CommonCriteriaTest extends TestCase
      */
     public function where_has_criteria_works(): void
     {
-        $this->repository->pushCriteria(new WhereHas('translations', function($query) {
-            return $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla');
-        }));
+        $this->repository->pushCriteria(
+            new WhereHas(
+                'translations',
+                fn ($query) => $query->where('translated_string', 'vertaalde_attribuutwaarde hoepla')
+            )
+        );
 
         $result = $this->repository->all();
-        $this->assertCount(1, $result, "WhereHas Criteria doesn't work (wrong count)");
-        $this->assertEquals('1337', $result->first()->{self::UNIQUE_FIELD}, "WhereHas Criteria doesn't work (wrong model)");
+        static::assertCount(1, $result, "WhereHas Criteria doesn't work (wrong count)");
+        static::assertEquals(
+            '1337',
+            $result->first()->{self::UNIQUE_FIELD},
+            "WhereHas Criteria doesn't work (wrong model)"
+        );
     }
 
     /**
      * @test
      */
-   public function with_relations_criteria_works(): void
+    public function with_relations_criteria_works(): void
     {
-        $this->assertEmpty(
+        static::assertEmpty(
             $this->repository->findBy(self::UNIQUE_FIELD, '1337')->getRelations(),
-            "Model already includes translations relation without WithRelations Criteria"
+            'Model already includes translations relation without WithRelations Criteria'
         );
 
         $this->repository->pushCriteria(new WithRelations(['translations']));
 
-        $this->assertNotEmpty(
+        static::assertNotEmpty(
             $this->repository->findBy(self::UNIQUE_FIELD, '1337')->getRelations(),
-            "Model does not include translations relation with WithRelations Criteria"
+            'Model does not include translations relation with WithRelations Criteria'
         );
     }
 
@@ -183,8 +204,6 @@ class CommonCriteriaTest extends TestCase
     public function take_criteria_works(): void
     {
         $this->repository->pushCriteria(new Take(2));
-
-        $this->assertCount(2, $this->repository->all(), "Take Criteria doesn't work");
+        static::assertCount(2, $this->repository->all(), "Take Criteria doesn't work");
     }
-
 }
