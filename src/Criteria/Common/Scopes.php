@@ -23,7 +23,7 @@ class Scopes extends AbstractCriteria
      *      [ scope, parameters[] ]
      *  ]
      *
-     * @var array<int, array<string, mixed[]>>
+     * @var array<int, array{0: string, 1: mixed[]}>
      */
     protected array $scopes;
 

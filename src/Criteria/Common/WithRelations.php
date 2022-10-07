@@ -24,5 +24,4 @@ class WithRelations extends AbstractCriteria
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {
         return $model->with($this->withStatements);
     }
-
 }

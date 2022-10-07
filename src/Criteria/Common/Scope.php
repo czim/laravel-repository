@@ -16,8 +16,8 @@ use Illuminate\Database\Query\Builder as DatabaseBuilder;
 class Scope extends AbstractCriteria
 {
     /**
-     * @param string  $scope
-     * @param mixed[] $parameters
+     * @param string                   $scope
+     * @param array<int|string, mixed> $parameters
      */
     public function __construct(
         protected string $scope,

@@ -233,7 +233,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     /**
      * Converts the tracked scopes to an array that the Scopes Common Criteria will eat.
      *
-     * @return array<int, array<string, mixed[]>>
+     * @return array<int, array{0: string, 1: mixed[]}>
      */
     protected function convertScopesToCriteriaArray(): array
     {

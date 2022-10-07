@@ -105,14 +105,14 @@ abstract class BaseRepository implements BaseRepositoryInterface
      *
      * @return class-string<TModel>
      */
-    public abstract function model(): string;
+    abstract public function model(): string;
 
 
     /**
      * Creates instance of model to start building query for
      *
      * @param bool $storeModel if true, this becomes a fresh $this->model property
-     * @return TModel&Model
+     * @return TModel
      * @throws RepositoryException
      */
     public function makeModel(bool $storeModel = true): Model
@@ -310,7 +310,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
                 $model = (! $or)
                     ? $model->where($value)
                     : $model->orWhere($value);
-
             } elseif (is_array($value)) {
                 if (count($value) === 3) {
                     [$field, $operator, $search] = $value;
@@ -402,8 +401,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Deletes a model by id.
-     *
      * @param int|string $id
      * @return int
      * @throws RepositoryException
@@ -419,8 +416,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     // -------------------------------------------------------------------------
 
     /**
-     * Applies callback to query for easier elaborate custom queries
-     * on all() calls.
+     * Applies callback to query for easier elaborate custom queries on all() calls.
      *
      * @param Closure  $callback must return query/builder compatible
      * @param string[] $columns
@@ -438,8 +434,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Applies callback to query for easier elaborate custom queries
-     * on find (actually: ->first()) calls.
+     * Applies callback to query for easier elaborate custom queries on find (actually: ->first()) calls.
      *
      * @param Closure  $callback must return query/builder compatible
      * @param string[] $columns
@@ -463,7 +458,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Returns a collection with the default criteria for the repository.
-     * These should be the criteria that apply for (almost) all calls
+     *
+     * These should be the criteria that apply for (almost) all calls.
      *
      * Default set of criteria to apply to this repository
      * Note that this also needs all the parameters to send to the constructor
@@ -479,7 +475,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         return new Collection();
     }
-
 
     /**
      * Builds the default criteria and replaces the criteria stack to apply with the default collection.
@@ -527,8 +522,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Returns a cloned set of all currently set criteria (not including
-     * those to be applied once).
+     * Returns a cloned set of all currently set criteria (not including those to be applied once).
      *
      * @return Collection<int|string, CriteriaInterface>
      */
@@ -541,8 +535,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Applies Criteria to the model for the upcoming query.
      *
-     * This takes the default/standard Criteria, then overrides
-     * them with whatever is found in the onceCriteria list
+     * This takes the default/standard Criteria, then overrides them with whatever is found in the onceCriteria list.
      *
      * @throws RepositoryException
      */
@@ -579,7 +572,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Pushes Criteria, optionally by identifying key.
      *
-     * If a criteria already exists for the key, it is overridden
+     * If a criteria already exists for the key, it is overridden.
      * Note that this does NOT overrule any onceCriteria, even if set by key!
      *
      * @param CriteriaInterface $criteria
@@ -605,8 +598,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Pushes Criteria, but only for the next call, resets to default afterwards.
      *
-     * Note that this does NOT work for specific criteria exclusively, it resets
-     * to default for ALL Criteria.
+     * Note that this does NOT work for specific criteria exclusively, it resets to default for ALL Criteria.
      *
      * @param CriteriaInterface $criteria
      * @param string|null       $key

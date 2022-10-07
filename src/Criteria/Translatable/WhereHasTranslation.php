@@ -42,7 +42,6 @@ class WhereHasTranslation extends AbstractCriteria
         $this->operator  = $exact ? '=' : 'LIKE';
     }
 
-
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {

@@ -28,7 +28,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::getEnvironmentSetUp($app);
 
-        // Setup default database to use sqlite :memory:
+        // Set up default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
             'driver'   => 'sqlite',
@@ -36,10 +36,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'prefix'   => '',
         ]);
 
-        // set minutes for cache to live
+        // Set minutes for cache to live.
         $app['config']->set('cache.ttl', 60);
 
-        $app['config']->set('translatable', (new TranslatableConfig)->getConfig());
+        $app['config']->set('translatable', (new TranslatableConfig())->getConfig());
     }
 
 
@@ -83,7 +83,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->string('translated_string', 255);
             $table->timestamps();
         });
-
     }
 
     abstract protected function seedDatabase(): void;
@@ -91,8 +90,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     /**
      * Makes a mock Criteria object for simple custom Criteria testing.
-     * If no callback is given, it will simply return the model/query unaltered
-     * (and have no effect).
+     *
+     * If no callback is given, it will simply return the model/query unaltered  (and have no effect).
      *
      * @param int|string|null $expects
      * @param Closure|null    $callback the callback for the apply() method on the Criteria
@@ -100,7 +99,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function makeMockCriteria(
         string|int|null $expects = null,
-        Closure $callback = null
+        Closure $callback = null,
     ): MockInterface {
         $mock = Mockery::mock(CriteriaInterface::class);
 
@@ -108,7 +107,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $callback = fn ($model) => $model;
         }
 
-        if ( ! $expects) {
+        if (! $expects) {
             $mock->shouldReceive('apply')->andReturnUsing($callback);
             return $mock;
         }

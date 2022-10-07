@@ -9,4 +9,3 @@ use RuntimeException;
 class RepositoryException extends RuntimeException
 {
 }
-

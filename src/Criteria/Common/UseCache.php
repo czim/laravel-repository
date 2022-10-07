@@ -17,7 +17,7 @@ use Watson\Rememberable\Query\Builder as RememberableBuilder;
 class UseCache extends AbstractCriteria
 {
     protected const CACHE_DEFAULT_TTL = 15 * 60;
-    protected const CONFIG_TTL_KEY = 'cache.ttl';
+    protected const CONFIG_TTL_KEY    = 'cache.ttl';
 
     /**
      * @var int|null in seconds

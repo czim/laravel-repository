@@ -39,7 +39,7 @@ trait HandlesEloquentRelationManipulationTrait
         string $relation,
         int|string $id,
         array $attributes = [],
-        bool $touch = true
+        bool $touch = true,
     ): void {
         $model->{$relation}()->attach($id, $attributes, $touch);
     }

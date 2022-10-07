@@ -30,7 +30,7 @@ interface BaseRepositoryInterface
      * Creates instance of model to start building query for
      *
      * @param bool $storeModel if true, this becomes a fresh $this->model property
-     * @return TModel&Model
+     * @return TModel
      * @throws RepositoryException
      */
     public function makeModel(bool $storeModel = true): Model;
