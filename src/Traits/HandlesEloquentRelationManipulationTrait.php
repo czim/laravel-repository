@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Model;
  * some intermediate object (i.e. a Repository) to make model manipulation
  * easier to test/mock.
  *
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @see HandlesEloquentRelationManipulationInterface
  */
 trait HandlesEloquentRelationManipulationTrait
 {
     /**
-     * @param Model                  $model
+     * @param TModel                 $model
      * @param string                 $relation name of the relation (method name)
      * @param array<int, int|string> $ids      list of id's to connect to
      * @param bool                   $detaching
@@ -28,7 +30,7 @@ trait HandlesEloquentRelationManipulationTrait
     }
 
     /**
-     * @param Model                $model
+     * @param TModel               $model
      * @param string               $relation name of the relation (method name)
      * @param int|string           $id
      * @param array<string, mixed> $attributes
@@ -45,7 +47,7 @@ trait HandlesEloquentRelationManipulationTrait
     }
 
     /**
-     * @param Model                  $model
+     * @param TModel                 $model
      * @param string                 $relation name of the relation (method name)
      * @param array<int, int|string> $ids
      * @param bool                   $touch
@@ -56,9 +58,9 @@ trait HandlesEloquentRelationManipulationTrait
     }
 
     /**
-     * @param Model            $model
-     * @param string           $relation name of the relation (method name)
-     * @param Model|int|string $with
+     * @param TModel            $model
+     * @param string            $relation name of the relation (method name)
+     * @param TModel|int|string $with
      */
     public function associate(Model $model, string $relation, Model|int|string $with): void
     {
@@ -68,7 +70,7 @@ trait HandlesEloquentRelationManipulationTrait
     /**
      * Excecutes a dissociate on the model model provided.
      *
-     * @param Model  $model
+     * @param TModel  $model
      * @param string $relation name of the relation (method name)
      */
     public function dissociate(Model $model, string $relation): void

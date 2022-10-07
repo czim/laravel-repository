@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @see FindsModelsByTranslationInterface
  */
 trait FindsModelsByTranslationTrait
@@ -21,11 +23,17 @@ trait FindsModelsByTranslationTrait
      * @param string      $value
      * @param string|null $locale
      * @param bool        $exact     = or LIKE match
-     * @return Model|null
+     * @return TModel|null
      */
-    public function findByTranslation(string $attribute, string $value, string $locale = null, bool $exact = true): ?Model
-    {
-        $this->pushCriteriaOnce( new WhereHasTranslation($attribute, $value, $locale, $exact) );
+    public function findByTranslation(
+        string $attribute,
+        string $value,
+        string $locale = null,
+        bool $exact = true,
+    ): ?Model {
+        $this->pushCriteriaOnce(
+            new WhereHasTranslation($attribute, $value, $locale, $exact)
+        );
 
         return $this->first();
     }
@@ -37,11 +45,17 @@ trait FindsModelsByTranslationTrait
      * @param string      $value
      * @param string|null $locale
      * @param bool        $exact     = or LIKE match
-     * @return EloquentCollection<int, Model>
+     * @return EloquentCollection<int, TModel>
      */
-    public function findAllByTranslation(string $attribute, string $value, string $locale = null, bool $exact = true): EloquentCollection
-    {
-        $this->pushCriteriaOnce( new WhereHasTranslation($attribute, $value, $locale, $exact) );
+    public function findAllByTranslation(
+        string $attribute,
+        string $value,
+        string $locale = null,
+        bool $exact = true,
+    ): EloquentCollection {
+        $this->pushCriteriaOnce(
+            new WhereHasTranslation($attribute, $value, $locale, $exact)
+        );
 
         return $this->all();
     }

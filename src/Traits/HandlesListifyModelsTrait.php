@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 
 /**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @see HandlesListifyModelsInterface
  */
 trait HandlesListifyModelsTrait
@@ -19,7 +21,7 @@ trait HandlesListifyModelsTrait
      *
      * @param int $id
      * @param int $newPosition default: top spot
-     * @return Model|false
+     * @return TModel|false
      */
     public function updatePosition(int $id, int $newPosition = 1): Model|false
     {

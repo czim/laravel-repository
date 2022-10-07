@@ -13,6 +13,11 @@ use Watson\Rememberable\Query\Builder as RememberableBuilder;
 
 /**
  * Configure default cache duration in config: cache.ttl
+ *
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TRelated of \Illuminate\Database\Eloquent\Model
+ *
+ * @extends AbstractCriteria<TModel, TRelated>
  */
 class UseCache extends AbstractCriteria
 {
@@ -37,12 +42,13 @@ class UseCache extends AbstractCriteria
     }
 
     /**
-     * @param Model|Relation|EloquentBuilder|DatabaseBuilder|RememberableBuilder $model
-     * @return Model|Relation|DatabaseBuilder|EloquentBuilder|RememberableBuilder
+     * @param TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel> $model
+     * @return TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel>
      */
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {
+        /** @var $model RememberableBuilder */
         return $model->remember($this->timeToLive);
     }
 }

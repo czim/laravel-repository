@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Model;
  * intermediate object (i.e. a Repository) to make model manipulation
  * easier to test/mock.
  *
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @see HandlesEloquentSavingInterface
  */
 trait HandlesEloquentSavingTrait
 {
     /**
-     * @param Model                $model
+     * @param TModel               $model
      * @param array<string, mixed> $options
      * @return bool
      */

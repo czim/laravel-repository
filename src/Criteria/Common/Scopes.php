@@ -14,6 +14,11 @@ use InvalidArgumentException;
 
 /**
  * Applies a bunch of scopes.
+ *
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TRelated of \Illuminate\Database\Eloquent\Model
+ *
+ * @extends AbstractCriteria<TModel, TRelated>
  */
 class Scopes extends AbstractCriteria
 {
@@ -73,6 +78,10 @@ class Scopes extends AbstractCriteria
         $this->scopes = $scopes;
     }
 
+    /**
+     * @param TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel> $model
+     * @return TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel>
+     */
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {

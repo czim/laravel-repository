@@ -10,6 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TRelated of \Illuminate\Database\Eloquent\Model
+ *
+ * @extends AbstractCriteria<TModel, TRelated>
+ */
 class WithRelations extends AbstractCriteria
 {
     /**
@@ -19,6 +25,10 @@ class WithRelations extends AbstractCriteria
     {
     }
 
+    /**
+     * @param TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel> $model
+     * @return TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel>
+     */
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {

@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as DatabaseBuilder;
-use Watson\Rememberable\Query\Builder as RememberableBuilder;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TRelated of \Illuminate\Database\Eloquent\Model
+ */
 interface CriteriaInterface
 {
     /**
-     * @param Model|Relation|DatabaseBuilder|EloquentBuilder|RememberableBuilder $model
-     * @param BaseRepositoryInterface                                   $repository
-     * @return Model|Relation|DatabaseBuilder|EloquentBuilder|RememberableBuilder
+     * @param TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel> $model
+     * @param BaseRepositoryInterface<TModel>                                   $repository
+     * @return TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel>
      */
     public function apply(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model,

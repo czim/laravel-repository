@@ -32,27 +32,29 @@ use Psr\Container\NotFoundExceptionInterface;
  * by other columns, by marking the Criteria that does the ordering with key 'order'.
  *
  * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
+ * @implements BaseRepositoryInterface<TModel>
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     protected ContainerInterface $app;
 
     /**
-     * @var TModel|Model|EloquentBuilder|BaseBuilder
+     * @var TModel|EloquentBuilder<TModel>|BaseBuilder
      */
     protected Model|EloquentBuilder|BaseBuilder $modelOrQuery;
 
     /**
      * Criteria to keep and use for all coming queries
      *
-     * @var Collection<int|string, CriteriaInterface>
+     * @var Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     protected Collection $criteria;
 
     /**
      * The Criteria to only apply to the next query
      *
-     * @var Collection<int|string, CriteriaInterface>
+     * @var Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     protected Collection $onceCriteria;
 
@@ -61,7 +63,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * So this is a dynamic list that can change during calls of various repository
      * methods that alter the active criteria.
      *
-     * @var Collection<int|string, CriteriaInterface>
+     * @var Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     protected Collection $activeCriteria;
 
@@ -81,8 +83,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
 
     /**
-     * @param ContainerInterface                        $container
-     * @param Collection<int|string, CriteriaInterface> $initialCriteria
+     * @param ContainerInterface                                       $container
+     * @param Collection<int|string, CriteriaInterface<TModel, Model>> $initialCriteria
      * @throws RepositoryException
      */
     public function __construct(ContainerInterface $container, Collection $initialCriteria)
@@ -148,7 +150,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Give unexecuted (fresh) query wioth the current applied criteria.
      *
-     * @return EloquentBuilder|BaseBuilder
+     * @return EloquentBuilder<TModel>|BaseBuilder
      * @throws RepositoryException
      */
     public function query(): EloquentBuilder|BaseBuilder
@@ -299,10 +301,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param array<string, callable|array<int, string>|mixed> $where
      * @param string[]                                         $columns
      * @param bool                                             $or
-     * @return EloquentCollection
+     * @return EloquentCollection<int, TModel>
      */
     public function findWhere(array $where, array $columns = ['*'], bool $or = false): EloquentCollection
     {
+        /** @var EloquentBuilder<TModel> $model */
         $model = $this->query();
 
         foreach ($where as $field => $value) {
@@ -386,7 +389,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * @param array<string, mixed> $data
      * @param int|string           $id
      * @param string|null          $attribute
-     * @return Model|false
+     * @return TModel|false
      * @throws MassAssignmentException|ModelNotFoundException
      */
     public function fill(array $data, int|string $id, ?string $attribute = null): Model|false
@@ -429,7 +432,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         $this->assertValidCustomCallback($result);
 
-        /** @var EloquentBuilder|BaseBuilder $result */
+        /** @var EloquentBuilder<TModel>|BaseBuilder $result */
         return $result->get($columns);
     }
 
@@ -447,7 +450,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         $this->assertValidCustomCallback($result);
 
-        /** @var EloquentBuilder|BaseBuilder $result */
+        /** @var EloquentBuilder<TModel>|BaseBuilder $result */
         return $result->first($columns);
     }
 
@@ -469,7 +472,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Override with your own defaults (check ExtendedRepository's refreshed,
      * named Criteria for examples).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function defaultCriteria(): Collection
     {
@@ -504,7 +507,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getCriteria(): Collection
     {
@@ -514,7 +517,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns a cloned set of all currently set once criteria.
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getOnceCriteria(): Collection
     {
@@ -524,7 +527,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns a cloned set of all currently set criteria (not including those to be applied once).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getAllCriteria(): Collection
     {
@@ -575,8 +578,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
      * If a criteria already exists for the key, it is overridden.
      * Note that this does NOT overrule any onceCriteria, even if set by key!
      *
-     * @param CriteriaInterface $criteria
-     * @param string|null       $key        Unique identifier, may be used to remove and overwrite criteria
+     * @param CriteriaInterface<TModel, Model> $criteria
+     * @param string|null                      $key      Unique identifier, may be used to remove and overwrite criteria
      */
     public function pushCriteria(CriteriaInterface $criteria, ?string $key = null): void
     {
@@ -600,8 +603,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
      *
      * Note that this does NOT work for specific criteria exclusively, it resets to default for ALL Criteria.
      *
-     * @param CriteriaInterface $criteria
-     * @param string|null       $key
+     * @param CriteriaInterface<TModel, Model> $criteria
+     * @param string|null                      $key
      * @return $this
      */
     public function pushCriteriaOnce(CriteriaInterface $criteria, ?string $key = null): static
@@ -636,7 +639,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
 
         // Override by key with null-value.
-        $this->onceCriteria->put($key, new NullCriteria());
+        /** @var NullCriteria<TModel, Model> $nullCriterion */
+        $nullCriterion = new NullCriteria();
+
+        $this->onceCriteria->put($key, $nullCriterion);
+
         return $this;
     }
 
@@ -644,7 +651,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     /**
      * Returns the criteria that must be applied for the next query.
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     protected function getCriteriaToApply(): Collection
     {

@@ -12,6 +12,11 @@ use Illuminate\Database\Query\Builder as DatabaseBuilder;
 
 /**
  * Applies a SINGLE scope.
+ *
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TRelated of \Illuminate\Database\Eloquent\Model
+ *
+ * @extends AbstractCriteria<TModel, TRelated>
  */
 class Scope extends AbstractCriteria
 {
@@ -25,6 +30,10 @@ class Scope extends AbstractCriteria
     ) {
     }
 
+    /**
+     * @param TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel> $model
+     * @return TModel|Relation<TRelated>|DatabaseBuilder|EloquentBuilder<TModel>
+     */
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {

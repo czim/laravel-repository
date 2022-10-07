@@ -6,12 +6,19 @@ namespace Czim\Repository;
 
 use Czim\Repository\Contracts\CriteriaInterface;
 use Czim\Repository\Contracts\ExtendedRepositoryInterface;
+use Czim\Repository\Criteria\Common\IsActive;
 use Czim\Repository\Criteria\Common\Scopes;
 use Czim\Repository\Criteria\Common\UseCache;
 use Czim\Repository\Enums\CriteriaKey;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Psr\Container\ContainerInterface;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
+ * @extends BaseRepository<TModel>
+ */
 abstract class ExtendedRepository extends BaseRepository implements ExtendedRepositoryInterface
 {
     /**
@@ -96,7 +103,7 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     {
         if ($this->hasActive) {
             if (! $this->includeInactive) {
-                $this->criteria->put(CriteriaKey::ACTIVE, new Criteria\Common\IsActive($this->activeColumn));
+                $this->criteria->put(CriteriaKey::ACTIVE, $this->getActiveCriteriaInstance());
             } else {
                 $this->criteria->forget(CriteriaKey::ACTIVE);
             }
@@ -252,26 +259,42 @@ abstract class ExtendedRepository extends BaseRepository implements ExtendedRepo
     }
 
     /**
+     * Returns Criteria to use for is-active check.
+     *
+     * @return CriteriaInterface<TModel, Model>
+     */
+    protected function getActiveCriteriaInstance(): CriteriaInterface
+    {
+        /** @var IsActive<TModel, Model> $criterion */
+        $criterion = new IsActive($this->activeColumn);
+        return $criterion;
+    }
+
+    /**
      * Returns Criteria to use for caching. Override to replace with something other
      * than Rememberable (which is used by the default Common\UseCache Criteria);
      *
-     * @return CriteriaInterface
+     * @return CriteriaInterface<TModel, Model>
      */
     protected function getCacheCriteriaInstance(): CriteriaInterface
     {
-        return new UseCache();
+        /** @var UseCache<TModel, Model> $criterion */
+        $criterion = new UseCache();
+        return $criterion;
     }
 
     /**
      * Returns Criteria to use for applying scopes. Override to replace with something
      * other the default Common\Scopes Criteria.
      *
-     * @return CriteriaInterface
+     * @return CriteriaInterface<TModel, Model>
      */
     protected function getScopesCriteriaInstance(): CriteriaInterface
     {
-        return new Scopes(
+        /** @var Scopes<TModel, Model> $criterion */
+        $criterion = new Scopes(
             $this->convertScopesToCriteriaArray()
         );
+        return $criterion;
     }
 }

@@ -38,7 +38,7 @@ interface BaseRepositoryInterface
     /**
      * Give unexecuted (fresh) query wioth the current applied criteria.
      *
-     * @return EloquentBuilder|BaseBuilder
+     * @return EloquentBuilder<TModel>|BaseBuilder
      * @throws RepositoryException
      */
     public function query(): EloquentBuilder|BaseBuilder;
@@ -124,7 +124,7 @@ interface BaseRepositoryInterface
      * @param array<string, callable|array<int, string>|mixed> $where
      * @param string[]                                         $columns
      * @param bool                                             $or
-     * @return EloquentCollection
+     * @return EloquentCollection<int, TModel>
      */
     public function findWhere(array $where, array $columns = ['*'], bool $or = false): EloquentCollection;
 
@@ -160,7 +160,7 @@ interface BaseRepositoryInterface
      * @param array<string, mixed> $data
      * @param int|string           $id
      * @param string|null          $attribute
-     * @return Model|false
+     * @return TModel|false
      * @throws MassAssignmentException|ModelNotFoundException
      */
     public function fill(array $data, int|string $id, ?string $attribute = null): Model|false;
@@ -208,7 +208,7 @@ interface BaseRepositoryInterface
      * Override with your own defaults (check ExtendedRepository's refreshed,
      * named Criteria for examples).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function defaultCriteria(): Collection;
 
@@ -232,14 +232,14 @@ interface BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getCriteria(): Collection;
 
     /**
      * Returns a cloned set of all currently set once criteria.
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getOnceCriteria(): Collection;
 
@@ -247,7 +247,7 @@ interface BaseRepositoryInterface
      * Returns a cloned set of all currently set criteria (not including
      * those to be applied once).
      *
-     * @return Collection<int|string, CriteriaInterface>
+     * @return Collection<int|string, CriteriaInterface<TModel, Model>>
      */
     public function getAllCriteria(): Collection;
 
@@ -267,8 +267,8 @@ interface BaseRepositoryInterface
      * If a criteria already exists for the key, it is overridden
      * Note that this does NOT overrule any onceCriteria, even if set by key!
      *
-     * @param CriteriaInterface $criteria
-     * @param string|null       $key        Unique identifier, may be used to remove and overwrite criteria
+     * @param CriteriaInterface<TModel, Model> $criteria
+     * @param string|null                      $key      Unique identifier, may be used to remove and overwrite criteria
      */
     public function pushCriteria(CriteriaInterface $criteria, ?string $key = null): void;
 
@@ -283,8 +283,8 @@ interface BaseRepositoryInterface
      * Note that this does NOT work for specific criteria exclusively, it resets
      * to default for ALL Criteria.
      *
-     * @param CriteriaInterface $criteria
-     * @param string|null       $key
+     * @param CriteriaInterface<TModel, Model> $criteria
+     * @param string|null                      $key
      * @return $this
      */
     public function pushCriteriaOnce(CriteriaInterface $criteria, ?string $key = null): static;
