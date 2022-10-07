@@ -2,6 +2,12 @@
 
 Introduced for version 4.0.
 
+
+## 4.1.0 - 2022-09-29
+
+- Generic type templates added.
+- Style cleanup.
+
 ## 4.0.0 - 2022-09-29
 
 ### Breaking Changes
