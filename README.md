@@ -29,6 +29,9 @@ I prefer using them to make for easier unit testing in large projects.
 | 6.0        | 2.0      |
 | 7.0, 8.0   | 2.1      |
 | 9.0        | 3.0, 4.0 |
+| 10.0       | 4.2      |
+| 11.0       | 4.3      |
+| 12.0       | 4.4      |
 
 ### Warning
 
