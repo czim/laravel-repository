@@ -48,7 +48,7 @@ class UseCache extends AbstractCriteria
     protected function applyToQuery(
         Model|Relation|DatabaseBuilder|EloquentBuilder $model
     ): Model|Relation|DatabaseBuilder|EloquentBuilder {
-        /** @var $model RememberableBuilder */
+        /** @var RememberableBuilder $model */
         return $model->remember($this->timeToLive);
     }
 }

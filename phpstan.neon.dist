@@ -1,12 +1,9 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/larastan/larastan/extension.neon
     - ./vendor/phpstan/phpstan-phpunit/extension.neon
     - ./vendor/phpstan/phpstan-mockery/extension.neon
 
 parameters:
+    level: 0
     paths:
         - src
-    ignoreErrors:
-        -
-            message: '#Call to an undefined method .*::remember\(\)#'
-            path: src/Criteria/Common/UseCache.php
