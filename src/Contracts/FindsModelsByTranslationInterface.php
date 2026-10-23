@@ -22,7 +22,7 @@ interface FindsModelsByTranslationInterface
     public function findByTranslation(
         string $attribute,
         string $value,
-        string $locale = null,
+        ?string $locale = null,
         bool $exact = true,
     ): ?Model;
 
@@ -38,7 +38,7 @@ interface FindsModelsByTranslationInterface
     public function findAllByTranslation(
         string $attribute,
         string $value,
-        string $locale = null,
+        ?string $locale = null,
         bool $exact = true,
     ): EloquentCollection;
 }

@@ -16,6 +16,7 @@ use Czim\Repository\Criteria\Common\WhereHas;
 use Czim\Repository\Criteria\Common\WithRelations;
 use Czim\Repository\Enums\CriteriaKey;
 use Czim\Repository\Test\Helpers\TestExtendedModel;
+use PHPUnit\Framework\Attributes\Test;
 
 class CommonCriteriaTest extends TestCase
 {
@@ -65,9 +66,7 @@ class CommonCriteriaTest extends TestCase
     }
 
 
-    /**
-     * @test
-     */
+    #[Test]
     public function field_is_value_criteria_works(): void
     {
         $this->repository->pushCriteria(new FieldIsValue('name', 'special name'));
@@ -75,9 +74,7 @@ class CommonCriteriaTest extends TestCase
         static::assertCount(1, $this->repository->all(), "FieldIsValue Criteria doesn't work");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_criteria_works(): void
     {
         $this->repository->pushCriteria(new Has('translations', '>', 1));
@@ -97,9 +94,7 @@ class CommonCriteriaTest extends TestCase
         static::assertCount(1, $this->repository->all(), 'Has Criteria use with callback fails');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function is_active_criteria_works(): void
     {
         $this->repository->pushCriteria(new IsActive('active'));
@@ -107,9 +102,7 @@ class CommonCriteriaTest extends TestCase
         static::assertCount(2, $this->repository->all(), "IsActive Criteria doesn't work");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function order_by_criteria_works(): void
     {
         $this->repository->pushCriteria(new OrderBy('position', 'desc'));
@@ -117,9 +110,7 @@ class CommonCriteriaTest extends TestCase
         static::assertEquals([3, 2, 1], $this->repository->pluck('position')->all(), "OrderBy Criteria doesn't work");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function scope_criteria_works(): void
     {
         $this->repository->pushCriteria(new Scope('testing'), CriteriaKey::SCOPE);
@@ -131,9 +122,7 @@ class CommonCriteriaTest extends TestCase
         static::assertCount(1, $this->repository->all(), "Scope Criteria with parameter doesn't work");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function scopes_criteria_works(): void
     {
         $this->repository->pushCriteria(new Scopes([
@@ -159,9 +148,7 @@ class CommonCriteriaTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function where_has_criteria_works(): void
     {
         $this->repository->pushCriteria(
@@ -180,9 +167,7 @@ class CommonCriteriaTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function with_relations_criteria_works(): void
     {
         static::assertEmpty(
@@ -198,9 +183,7 @@ class CommonCriteriaTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function take_criteria_works(): void
     {
         $this->repository->pushCriteria(new Take(2));

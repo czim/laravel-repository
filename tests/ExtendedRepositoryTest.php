@@ -6,6 +6,8 @@ namespace Czim\Repository\Test;
 
 use Czim\Repository\ExtendedRepository;
 use Czim\Repository\Test\Helpers\TestExtendedModel;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExtendedRepositoryTest extends TestCase
 {
@@ -55,9 +57,7 @@ class ExtendedRepositoryTest extends TestCase
     //      Settings / caching / scopes
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_retrieve_inactive_files_and_uses_cache_by_default(): void
     {
         static::assertTrue($this->repository->isCacheEnabled(), 'Cache marked disabled');
@@ -81,10 +81,8 @@ class ExtendedRepositoryTest extends TestCase
         static::assertEquals('unchanged', $check->name, 'Cache did not apply, changes are seen instantly');
     }
 
-    /**
-     * @test
-     * @depends it_does_not_retrieve_inactive_files_and_uses_cache_by_default
-     */
+    #[Test]
+    #[Depends('it_does_not_retrieve_inactive_files_and_uses_cache_by_default')]
     public function it_retrieves_inactive_files_and_does_not_cache_in_maintenance_mode(): void
     {
         $this->repository->maintenance();
@@ -108,9 +106,7 @@ class ExtendedRepositoryTest extends TestCase
         static::assertEquals('changed!', $check->name, 'Result was still cached, could not see change');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_apply_and_remove_scopes_and_uses_any_set_scopes_on_queries(): void
     {
         // Add a scope that will limit the result to 1 record.
@@ -136,9 +132,7 @@ class ExtendedRepositoryTest extends TestCase
     //      Criteria for extended
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_uses_default_criteria_when_not_configured_not_to(): void
     {
         // By default, the defaultCriteria() should be loaded.
@@ -153,10 +147,8 @@ class ExtendedRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends it_uses_default_criteria_when_not_configured_not_to
-     */
+    #[Test]
+    #[Depends('it_uses_default_criteria_when_not_configured_not_to')]
     public function it_reapplies_criteria_only_when_changes_to_criteria_are_made(): void
     {
         // The idea is that a repository efficiently applies criteria, leaving a query state behind that
@@ -210,9 +202,7 @@ class ExtendedRepositoryTest extends TestCase
     //      Manipulation
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_updates_the_active_state_of_a_record(): void
     {
         $this->repository->maintenance();

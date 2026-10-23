@@ -32,6 +32,7 @@ I prefer using them to make for easier unit testing in large projects.
 | 10.0       | 4.2      |
 | 11.0       | 4.3      |
 | 12.0       | 4.4      |
+| 13.0       | 4.5      |
 
 ### Warning
 

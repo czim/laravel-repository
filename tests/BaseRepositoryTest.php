@@ -9,6 +9,8 @@ use Czim\Repository\Test\Helpers\TestSimpleModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 class BaseRepositoryTest extends TestCase
 {
@@ -55,9 +57,7 @@ class BaseRepositoryTest extends TestCase
     //      Retrieval
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_basic_retrieval_operations(): void
     {
         // all
@@ -101,9 +101,7 @@ class BaseRepositoryTest extends TestCase
         static::assertContains('1337', $list, 'Did not get correct array content for lists()');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_creates_a_new_instance_and_fills_attributes_with_data(): void
     {
         $attributes = [
@@ -120,9 +118,7 @@ class BaseRepositoryTest extends TestCase
         static::assertEquals(0, $this->repository->findWhere($attributes)->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throws_an_exception_when_findorfail_does_not_find_anything(): void
     {
         $this->expectException(ModelNotFoundException::class);
@@ -130,9 +126,7 @@ class BaseRepositoryTest extends TestCase
         $this->repository->findOrFail(895476);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throws_an_exception_when_firstorfail_does_not_find_anything(): void
     {
         $this->expectException(ModelNotFoundException::class);
@@ -149,9 +143,8 @@ class BaseRepositoryTest extends TestCase
 
     /**
      * Bosnadev's findWhere() method.
-     *
-     * @test
      */
+    #[Test]
     public function it_can_perform_a_findwhere_with_custom_parameters(): void
     {
         // Simple field/value combo's by key
@@ -196,9 +189,7 @@ class BaseRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_perform_find_and_all_lookups_with_a_callback_for_custom_queries(): void
     {
         // allCallback
@@ -215,9 +206,7 @@ class BaseRepositoryTest extends TestCase
         static::assertEquals('1337', $result->{self::UNIQUE_FIELD}, 'Wrong result for findCallback()');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throw_an_exception_if_the_callback_for_custom_queries_is_incorrect(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -232,10 +221,8 @@ class BaseRepositoryTest extends TestCase
     //      Manipulation
     // --------------------------------------------
 
-    /**
-     * @test
-     * @depends it_handles_basic_retrieval_operations
-     */
+    #[Test]
+    #[Depends('it_handles_basic_retrieval_operations')]
     public function it_handles_basic_manipulation_operations(): void
     {
         // Update existing
@@ -267,9 +254,7 @@ class BaseRepositoryTest extends TestCase
         unset($model);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_fills_a_retrieved_model_attributes_without_persisting_it(): void
     {
         $persistedModel = $this->repository->all()->first();
@@ -290,9 +275,7 @@ class BaseRepositoryTest extends TestCase
     //      Criteria
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_returns_and_can_restore_default_criteria(): void
     {
         static::assertTrue($this->repository->defaultCriteria()->isEmpty(), 'Defaultcriteria is not empty');
@@ -311,10 +294,8 @@ class BaseRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @depends it_handles_basic_retrieval_operations
-     */
+    #[Test]
+    #[Depends('it_handles_basic_retrieval_operations')]
     public function it_takes_criteria_and_handles_basic_criteria_manipulation(): void
     {
         // Clear all criteria, see if none are applied.

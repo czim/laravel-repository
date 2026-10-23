@@ -101,7 +101,7 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function makeMockCriteria(
         string|int|null $expects = null,
-        Closure $callback = null,
+        ?Closure $callback = null,
     ): MockInterface {
         $mock = Mockery::mock(CriteriaInterface::class);
 
