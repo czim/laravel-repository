@@ -33,10 +33,10 @@ class WhereHasTranslation extends AbstractCriteria
     public function __construct(
         string $attribute,
         string $value,
-        string $locale = null,
+        ?string $locale = null,
         bool $exact = true,
     ) {
-        $locale ?: app()->getLocale();
+        $locale = $locale ?: app()->getLocale();
 
         if (! $exact && ! preg_match('#^%(.+)%$#', $value)) {
             $value = '%' . $value . '%';

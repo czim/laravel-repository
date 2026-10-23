@@ -6,6 +6,7 @@ namespace Czim\Repository\Test;
 
 use Czim\Repository\ExtendedRepository;
 use Czim\Repository\Test\Helpers\TestExtendedModel;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExtendedRepositoryTraitsTest extends TestCase
 {
@@ -61,9 +62,7 @@ class ExtendedRepositoryTraitsTest extends TestCase
     //      Translatable
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_finds_records_by_translated_attribute_value(): void
     {
         // Finds by translation exact.
@@ -101,13 +100,45 @@ class ExtendedRepositoryTraitsTest extends TestCase
     }
 
 
+    #[Test]
+    public function it_uses_the_application_locale_when_no_translation_locale_is_given(): void
+    {
+        $this->app->setLocale('nl');
+
+        static::assertInstanceOf(
+            TestExtendedModel::class,
+            $this->repository->findByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla'),
+        );
+        static::assertCount(
+            1,
+            $this->repository->findAllByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla', null),
+        );
+        static::assertNull(
+            $this->repository->findByTranslation(self::TRANSLATED_FIELD, 'translated_attribute_value hoopla', null),
+        );
+
+        $this->app->setLocale('en');
+
+        static::assertInstanceOf(
+            TestExtendedModel::class,
+            $this->repository->findByTranslation(self::TRANSLATED_FIELD, 'translated_attribute_value hoopla', null),
+        );
+        static::assertCount(
+            1,
+            $this->repository->findAllByTranslation(self::TRANSLATED_FIELD, 'translated_attribute_value hoopla'),
+        );
+        static::assertCount(
+            0,
+            $this->repository->findAllByTranslation(self::TRANSLATED_FIELD, 'vertaalde_attribuutwaarde hoepla'),
+        );
+    }
+
+
     // --------------------------------------------
     //      Compatibility with Listify
     // --------------------------------------------
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_creates_new_records_with_position_handled_by_listify(): void
     {
         // The Supplier model must have Listify set for this.
@@ -134,10 +165,10 @@ class ExtendedRepositoryTraitsTest extends TestCase
     }
 
     /**
-     * @test
      * @todo rewrite this so that it uses listify method instead
      * @todo and add other useful listify methods?
      */
+    #[Test]
     public function it_updates_the_list_position_of_a_record(): void
     {
         $this->repository->maintenance();

@@ -28,7 +28,7 @@ trait FindsModelsByTranslationTrait
     public function findByTranslation(
         string $attribute,
         string $value,
-        string $locale = null,
+        ?string $locale = null,
         bool $exact = true,
     ): ?Model {
         $this->pushCriteriaOnce(
@@ -50,7 +50,7 @@ trait FindsModelsByTranslationTrait
     public function findAllByTranslation(
         string $attribute,
         string $value,
-        string $locale = null,
+        ?string $locale = null,
         bool $exact = true,
     ): EloquentCollection {
         $this->pushCriteriaOnce(

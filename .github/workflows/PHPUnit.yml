@@ -1,41 +1,48 @@
 name: PHPUnit
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
     phpunit:
-        name: PHPUnit
+        name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ['8.2', '8.3', '8.4', '8.5']
+                laravel: ['11.*', '12.*', '13.*']
+                exclude:
+                    - php: '8.2'
+                      laravel: '13.*'
+                    - php: '8.5'
+                      laravel: '11.*'
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: "8.2"
-                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+                  php-version: ${{ matrix.php }}
+                  extensions: dom, mbstring, pdo_sqlite
+                  tools: composer:v2
                   coverage: none
-
-            - name: Create database
-              run: |
-                  sudo /etc/init.d/mysql start
-                  mysql -u root -proot -e 'CREATE DATABASE IF NOT EXISTS laravel;'
 
             - name: Get Composer Cache Directory
               id: composer-cache
-              run: |
-                  echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
             - name: Cache Composer dependencies
               uses: actions/cache@v4
               with:
                   path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-composer-${{ hashFiles('composer.json') }}
                   restore-keys: |
-                      ${{ runner.os }}-composer-
+                      ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-composer-
 
-            - name: Run composer install
-              run: composer install -n --prefer-dist
+            - name: Install dependencies
+              run: |
+                  composer require --dev "laravel/framework:${{ matrix.laravel }}" --no-update --no-interaction
+                  composer update --no-interaction --prefer-dist --prefer-stable
 
             - name: Run PHPUnit
-              run: ./vendor/bin/phpunit
+              run: composer test
